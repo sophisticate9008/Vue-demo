@@ -1,10 +1,18 @@
 <template>
-    <div class="sidebar-item" :class="{ collapsed: toggle, active: isActive }" @click="handleClick">
-        <el-icon>
-            <component :is="icon" class="el-icons"/>            
-        </el-icon>
-        <span class="title">{{ title }}</span>
+    <div class="sidebar-item" :class="{ collapsed: toggle, active: isActive }" >
+        <el-tooltip v-if="toggle" class="box-item" effect="dark" :content="title" placement="right-end">
+            <el-icon>
+                <component :is="icon" class="el-icons" />
+            </el-icon>
+        </el-tooltip>
+        <template v-else>
+            <el-icon>
+                <component :is="icon" class="el-icons" />
+            </el-icon>
+            <span class="title">{{ title }}</span>
+        </template>
     </div>
+    
 </template>
 
 <script setup>
@@ -25,17 +33,13 @@ const props = defineProps({
     },
     isActive: {
         type: Boolean,
-        required: true
+        required: false
+    },
+    selUrl:{
+        type: String,
+        required: false
     }
 });
-
-const emit = defineEmits(["item-clicked"])
-const handleClick = () => {
-    if (!props.isActive) {
-        // 触发选中事件
-        emit('item-clicked')
-    }
-};
 
 </script>
 
@@ -45,29 +49,42 @@ const handleClick = () => {
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding:10px;
+    padding: 10px;
     transition: width 0.3s;
-    cursor: pointer;  
+    cursor: pointer;
 }
 
 .sidebar-item.collapsed {
     animation: fade-out 0.3s forwards;
 }
+
 @keyframes fade-out {
-    0% { width: 200px; } /* 定义动画的初始状态 */
-    100% { width: 25px; } /* 定义动画的最终状态 */
+    0% {
+        width: 200px;
+    }
+
+    /* 定义动画的初始状态 */
+    100% {
+        width: 25px;
+    }
+
+    /* 定义动画的最终状态 */
 }
+
 .sidebar-item.active .el-icon,
 .sidebar-item.active .title {
-    color: #1890ff; /* Light blue color when active */
+    color: #1890ff;
+    /* Light blue color when active */
 }
-.sidebar-item.active{
+
+.sidebar-item.active {
     background-color: #EAF5FF;
 }
 
 .sidebar-item .el-icon {
     font-size: 24px;
-    color: #333; /* Default color */
+    color: #333;
+    /* Default color */
     /* Adjust the icon size and color as needed */
     margin-right: 10px;
 }
@@ -85,8 +102,10 @@ const handleClick = () => {
 }
 
 .sidebar-item:hover .title {
-    color: #606c76; /* Light blue color on hover */
+    color: #606c76;
+    /* Light blue color on hover */
 }
+
 .sidebar-item:hover {
     background-color: #F4F4F5;
 }
