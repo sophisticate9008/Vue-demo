@@ -25,14 +25,14 @@ const props = defineProps({
         type: String,
         default: "Vue3-demo"
     },
+    sidebarItems : {
+        type: Array,
+        default: () => []
+    }
 
 })
 // 定义侧边栏项
-const sidebarItems = [
-    { icon: 'HomeFilled', title: 'Home', url: '/' },
-    { icon: 'UserFilled', title: 'Profile', url: '/profile' },
-    { icon: 'Setting', title: 'Settings', url: '/settings' }
-]
+
 
 // 控制侧边栏的折叠状态
 const isCollapsed = ref(false)
@@ -76,7 +76,7 @@ const selSidebarItem = (index, url) => {
     text-wrap: nowrap;
 }
 .switch{
-    width: 200px;
+    width: 95%;
     position: absolute;
     bottom: 0;
 }
