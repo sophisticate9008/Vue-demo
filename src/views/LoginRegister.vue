@@ -44,69 +44,95 @@
     </div>
 </template>
 
-<script>
-import axios from 'axios'; 
-// import { addDynamicRoutes } from '../router';
-export default {
-    name: "LoginRegister",
-    data() {
-        return {
-            activeTab: "login",
-            loginAccount: "",
-            loginPassword: "",
-            registerAccount: "",
-            registerPassword: "",
-            registerConfirmPassword: "",
-            loginCode: "",
-            verificationCodeUrl: "http://localhost:8888/login/getCode",
-        };
-    },
-    setup() { },
-    methods: {
-        handleLogin() {
-            axios
-                .post("/api/login/login", {
-                    account: this.loginAccount,
-                    password: this.loginPassword,
-                    code: this.loginCode,
-                })
-                .then((response) => {
-                    this.$message(response.data.msg);
-                    window.localStorage.setItem("authToken", 2);
-                    const redirectPath = this.$route.query.redirect || "/";
-                    this.$router.push(redirectPath);
-                });
-        },
-        handleRegister() {
-            // 模拟注册逻辑
-            if (
-                this.registerAccount &&
-                this.registerPassword &&
-                this.registerPassword === this.registerConfirmPassword
-            ) {
-                axios
-                    .post("/api/user/register", {
-                        account: this.registerAccount,
-                        password: this.registerPassword,
-                    })
-                    .then((response) => {
-                        this.$message(response.data.msg);
-                        window.localStorage.setItem("authToken", 2);
-                    });
-            } else {
-                this.$error("Passwords do not match");
-            }
-        },
-        refreshVerificationCode() {
-            // 更新验证码图片的 URL 以强制刷新
-            this.verificationCodeUrl =
-                this.verificationCodeUrl + `?timestamp=${new Date().getTime()}`;
-        },
-    },
+<script setup lang="ts">
+import { ref } from 'vue';
+import axios from 'axios';
+import { useRouter, useRoute } from 'vue-router';
+import { ElMessage } from 'element-plus';
+import { useUserState } from '../provide/store.ts';
+
+// 状态定义
+const activeTab = ref('login');
+const loginAccount = ref('');
+const loginPassword = ref('');
+const loginCode = ref('');
+const registerAccount = ref('');
+const registerPassword = ref('');
+const registerConfirmPassword = ref('');
+const verificationCodeUrl = ref('http://localhost:8888/login/getCode');
+
+// 路由
+const router = useRouter();
+const route = useRoute();
+const userState = useUserState();
+
+// 获取用户信息
+const fetchUserInfo = async () => {
+    try {
+        const response = await axios.get('/api/user/info');
+        userState.setUserInfo(response.data.data);
+        // 更新全局状态或其他操作
+    } catch (error) {
+        console.error('获取用户信息失败:', error);
+    }
 };
+
+// 登录处理
+const handleLogin = async () => {
+    try {
+        const response = await axios.post('/api/login/login', {
+            account: loginAccount.value,
+            password: loginPassword.value,
+            code: loginCode.value,
+        });
+        ElMessage(response.data.msg);
+        if (response.data.code == 200) {
+            await fetchUserInfo();
+            window.localStorage.setItem('authToken', response.data.token);
+            const redirectPath = route.query.redirect || '/';
+            router.push(redirectPath as string);
+        }
+    } catch (error) {
+        console.error('登录失败:', error);
+    }
+};
+
+// 注册处理
+const handleRegister = async () => {
+    if (registerPassword.value !== registerConfirmPassword.value) {
+        ElMessage.error('密码不匹配');
+        return;
+    }
+    try {
+        const response = await axios.post('/api/user/register', {
+            account: registerAccount.value,
+            password: registerPassword.value,
+        });
+        ElMessage(response.data.msg);
+        if (response.data.code == 200) {
+            window.localStorage.setItem('authToken', response.data.token);
+            const redirectPath = route.query.redirect || '/';
+            router.push(redirectPath as string);
+        }
+    } catch (error) {
+        console.error('注册失败:', error);
+    }
+};
+
+// 刷新验证码
+const refreshVerificationCode = () => {
+    verificationCodeUrl.value = `http://localhost:8888/login/getCode?timestamp=${new Date().getTime()}`;
+};
+
+
+
 </script>
 
 <style scoped>
+h2 {
+    text-align: center;
+}
+
 .login-register {
     max-width: 400px;
     margin: auto;
