@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import SideBar from './components/SideBar.vue';
-import { createUserState } from './provide/store.ts';
+import { createUserState } from './provide';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import axios from 'axios';
+import Tool from './tool/Tool.vue';
 const selUrl = ref('/LoginRegister');
 const router = useRouter();
 createUserState();
@@ -24,13 +25,13 @@ const logout = () => {
     console.log('Logged out');
     axios.post('/api/login/logout');
 };
+
 </script>
 
 <template>
     <div id="main">
-
+        <Tool></Tool>
         <SideBar :sidebarItems="sidebarItems" @sel-menuItem="changeSel"></SideBar>
-
         <div id="main-window">
             <div id="headBar">
                 <div class="headBar-item">

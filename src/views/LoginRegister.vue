@@ -1,4 +1,8 @@
 <template>
+    <div v-if="isLoggedIn">
+        <Tool></Tool>
+    </div>
+
     <div class="login-register">
         <div class="tabs">
             <button @click="activeTab = 'login'" :class="{ active: activeTab === 'login' }">
@@ -49,8 +53,7 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter, useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { useUserState } from '../provide/store.ts';
-
+import Tool from '../tool/Tool.vue';
 // 状态定义
 const activeTab = ref('login');
 const loginAccount = ref('');
@@ -64,18 +67,10 @@ const verificationCodeUrl = ref('http://localhost:8888/login/getCode');
 // 路由
 const router = useRouter();
 const route = useRoute();
-const userState = useUserState();
+const isLoggedIn = ref(false);
 
 // 获取用户信息
-const fetchUserInfo = async () => {
-    try {
-        const response = await axios.get('/api/user/info');
-        userState.setUserInfo(response.data.data);
-        // 更新全局状态或其他操作
-    } catch (error) {
-        console.error('获取用户信息失败:', error);
-    }
-};
+
 
 // 登录处理
 const handleLogin = async () => {
@@ -87,10 +82,13 @@ const handleLogin = async () => {
         });
         ElMessage(response.data.msg);
         if (response.data.code == 200) {
-            await fetchUserInfo();
+            isLoggedIn.value = true;
             window.localStorage.setItem('authToken', response.data.token);
-            const redirectPath = route.query.redirect || '/';
-            router.push(redirectPath as string);
+            setTimeout(() => {
+                const redirectPath = route.query.redirect || '/';
+                router.push(redirectPath as string);                
+            }, 500);
+
         }
     } catch (error) {
         console.error('登录失败:', error);

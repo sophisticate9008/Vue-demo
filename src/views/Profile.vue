@@ -36,7 +36,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
-import { useUserState } from '../provide/store.ts';
+import { useUserState } from '../provide/index.ts';
 const userState = useUserState();
 const form = userState.userInfo;
 

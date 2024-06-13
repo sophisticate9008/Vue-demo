@@ -13,10 +13,10 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, defineEmits,defineProps } from 'vue'
 import SidebarItem from './SidebarItem.vue'; // 使用正确的大小写
-const props = defineProps({
+defineProps({
     logo : {
         type: String,
         default: "/vite.svg"
@@ -83,7 +83,7 @@ const selSidebarItem = (index, url) => {
 .sidebar {
     position: relative;
     height: 100%;
-    width: 200px;
+
     padding-left: 3px;
     padding-right: 3px;
     border-right: 1px solid #EDEDED;
@@ -110,7 +110,7 @@ const selSidebarItem = (index, url) => {
 
 @keyframes fade-in {
     0% {
-        width: 45px;
+        width: 100px;
     }
 
     /* 定义动画的初始状态 */
