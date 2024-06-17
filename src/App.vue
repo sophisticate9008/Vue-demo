@@ -24,6 +24,7 @@ const logout = () => {
     window.localStorage.removeItem('authToken');
     console.log('Logged out');
     axios.post('/api/login/logout');
+    router.push('/home');
 };
 
 </script>

@@ -16,6 +16,7 @@
 <script setup lang="ts">
 import { ref, defineEmits,defineProps } from 'vue'
 import SidebarItem from './SidebarItem.vue'; // 使用正确的大小写
+import { SideBarItemBody } from '../type';
 defineProps({
     logo : {
         type: String,
@@ -26,7 +27,7 @@ defineProps({
         default: "Vue3-demo"
     },
     sidebarItems : {
-        type: Array,
+        type: Array<SideBarItemBody>,
         default: () => []
     }
 
@@ -49,7 +50,7 @@ const toggleSidebar = () => {
 const emit = defineEmits(["sel-menuItem"])
 
 // 切换侧边栏项选中状态
-const selSidebarItem = (index, url) => {
+const selSidebarItem = (index:any, url:any) => {
     selUrl.value = url
     emit("sel-menuItem", url)
     if (activeIndex.value !== index) {

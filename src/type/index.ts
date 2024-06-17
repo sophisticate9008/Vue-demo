@@ -7,4 +7,34 @@ export interface CommissionBody {
     money: number;
     num: number;
     state: number;
+    currentNum: number;
+    account: string;
+}
+
+export interface ReplyBody {
+    id: number;
+    content: string;
+    account: string;
+    commissionId: number;
+    replyTime: string;
+    state: number;
+}
+
+export interface UserBody {
+    id: number;
+    account: string;
+    name: string;
+    phone: string;
+    email: string;
+    avatarPath: string;
+    sex: number;
+    age: number;
+
+}
+
+export interface SideBarItemBody {
+    title: string;
+    url: string;
+    icon: string;
+
 }

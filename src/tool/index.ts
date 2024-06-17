@@ -1,3 +1,6 @@
+import axios, { AxiosResponse } from "axios";
+import { ElMessage } from "element-plus";
+
 /**
  * 将数据库中存储的北京时间 LocalDateTime 转换为指定格式的字符串
  * @param localDateTime - 数据库中存储的北京时间 LocalDateTime 字符串 (格式: yyyy-MM-dd'T'HH:mm:ss)
@@ -19,4 +22,37 @@ export function convertBeijingTime(localDateTime: string): string {
     const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
     return formattedDate;
+}
+/**
+ * 快捷显示服务器返回消息
+ * @param res - 返回体
+ * @returns void
+ */
+export function myElMessage(res: AxiosResponse) : void {
+    ElMessage({
+        message: res.data.msg,
+        type: res.data.code === 200 ? 'success' : 'error'
+    })
+}
+
+
+/**
+ * 上传文件
+ * @param 文件
+ * @returns 路径
+ */
+export async function uploadFile(file: File) : Promise<string> {
+    const formData = new FormData()
+    formData.append('mf', file)
+    const res = await axios.post('/api/file/uploadFile', formData)
+    return res.data.path;
+}
+
+/**
+ * 获得完整路径
+ * @param 路径
+ * @returns 完整路径
+ */
+export function intactPath(path: string) : string{
+    return "/api/file/showFileByPath?path=" + path;
 }

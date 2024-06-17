@@ -1,4 +1,5 @@
-import {Ref, reactive, provide, inject } from 'vue';
+import { reactive, provide, inject } from 'vue';
+import { UserBody } from '../type';
 
 const userStateSymbol = Symbol();
 
@@ -17,7 +18,7 @@ export const createUserState = () => {
 };
 
 export const useUserState = () => {
-    const state = inject<{ userInfo: Ref<any | null>, setUserInfo: (info: any) => void }>(userStateSymbol);
+    const state = inject<{ userInfo: UserBody, setUserInfo: (info: any) => void }>(userStateSymbol);
     if (!state) {
       throw new Error('useUserState must be used within a provider');
     }

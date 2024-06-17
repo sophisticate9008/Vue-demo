@@ -1,7 +1,12 @@
 <template>
     <div class="form-container">
+        <el-dialog v-model="dialogCropperVisible" title="裁剪图片" width="1000">
+            <CropperTool @crop-complete="handleCropComplete"></CropperTool>
+        </el-dialog>
         <el-card class="box-card">
-            <h2>编辑用户信息</h2>
+            <div class="avatar-container">
+                <el-avatar :src="croppedImage? croppedImage: intactPath(form.avatarPath) " :size="200" class="avatar" @click="dialogCropperVisible=true"></el-avatar>
+            </div>
             <el-form :model="form" @submit.prevent="handleSubmit">
                 <el-form-item label="账号">
                     <el-input v-model="form.account" disabled></el-input>
@@ -32,45 +37,70 @@
     </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
+
+<script setup lang="ts">
+import { ref } from 'vue';
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import { useUserState } from '../provide/index.ts';
+import { myElMessage, uploadFile } from '../tool/index.ts';  // Assuming uploadFile is exported from the tool file
+import CropperTool from '../tool/CropperTool.vue';
+import { intactPath } from '../tool/index.ts';
+const croppedImage = ref('');
+const dialogCropperVisible = ref(false);
 const userState = useUserState();
 const form = userState.userInfo;
-
-// 假设用户信息通过API获取
-
-
-// 组件挂载时获取用户信息
-
-
+const avatarFile = ref<File>();
+const handleCropComplete = (file: File) => {
+    croppedImage.value = URL.createObjectURL(file);
+    dialogCropperVisible.value = false;
+    avatarFile.value = file;
+};
 const handleSubmit = async () => {
     try {
-        const response = await axios.post('/api/user/changeProfile', form.value);
-        ElMessage.success('用户信息已更新');
+        if (avatarFile.value) {
+            const avatarPath = await uploadFile(avatarFile.value);
+            form.avatarPath = avatarPath;
+        }
+        const response = await axios.post('/api/user/changeProfile', form);
+        myElMessage(response);
     } catch (error) {
-        ElMessage.error('更新用户信息失败');
+        console.error(error);
+        ElMessage("修改失败");
     }
 };
 </script>
 
 <style scoped>
 .form-container {
+    margin: 15px;
     display: flex;
-    justify-content: center;
-    align-items: center;
     height: 100vh;
     background-color: #f5f5f5;
+
+    border-radius: 5px;
+}
+.avatar-container {
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
 }
 
 .box-card {
-    max-width: 500px;
+    max-width: 300px;
     width: 100%;
     padding: 20px;
 }
+
 .full-width-button {
-  width: 100%;
+    width: 100%;
+}
+
+.avatar-preview {
+    margin-top: 10px;
+    max-width: 100px;
+    max-height: 100px;
+    border-radius: 50%;
 }
 </style>

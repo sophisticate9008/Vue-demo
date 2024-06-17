@@ -29,11 +29,12 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import { useUserState } from '../provide';
+import { myElMessage } from '../tool';
 const userState = useUserState();
 const form = ref({
     account: userState.userInfo.account,
@@ -55,16 +56,16 @@ const rules = ref({
     num: [{ required: true, message: '请输入结果数量', trigger: 'blur' }]
 });
 
-const formRef = ref(null);
+const formRef = ref();
 
 const handleSubmit = () => {
-    formRef.value.validate(async (valid) => {
+    formRef.value?.validate(async (valid: any) => {
         if (valid) {
             try {
                 const response = await axios.post('/api/commission/add', form.value, {
                     headers: { 'Content-Type': 'application/json' }
                 });
-                ElMessage.success('委托添加成功');
+                myElMessage(response);
             } catch (error) {
                 ElMessage.error('委托添加失败');
             }

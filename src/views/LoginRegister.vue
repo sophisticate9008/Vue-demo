@@ -86,7 +86,7 @@ const handleLogin = async () => {
             window.localStorage.setItem('authToken', response.data.token);
             setTimeout(() => {
                 const redirectPath = route.query.redirect || '/';
-                router.push(redirectPath as string);                
+                router.push(redirectPath as string);
             }, 500);
 
         }
@@ -102,16 +102,14 @@ const handleRegister = async () => {
         return;
     }
     try {
-        const response = await axios.post('/api/user/register', {
-            account: registerAccount.value,
-            password: registerPassword.value,
+        const response = await axios.get('/api/user/register', {
+            params: {
+                account: registerAccount.value,
+                password: registerPassword.value,
+            }
+
         });
         ElMessage(response.data.msg);
-        if (response.data.code == 200) {
-            window.localStorage.setItem('authToken', response.data.token);
-            const redirectPath = route.query.redirect || '/';
-            router.push(redirectPath as string);
-        }
     } catch (error) {
         console.error('注册失败:', error);
     }
