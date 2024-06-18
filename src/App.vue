@@ -1,13 +1,15 @@
 <script setup lang="ts">
+import Tool from './tool/Tool.vue';
 import SideBar from './components/SideBar.vue';
 import { createUserState } from './provide';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import axios from 'axios';
-import Tool from './tool/Tool.vue';
+import { intactPath } from './tool';
 const selUrl = ref('/LoginRegister');
 const router = useRouter();
-createUserState();
+const userState = createUserState();
+
 const changeSel = (url: string) => {
     router.push(url);
     console.log(url);
@@ -16,7 +18,7 @@ const changeSel = (url: string) => {
     }
 };
 const sidebarItems = [
-    { icon: 'HomeFilled', title: '主页', url: '/home' },
+    { icon: 'HomeFilled', title: '主页', url: '/' },
     { icon: 'CirclePlus', title: '添加', url: '/addCommission' },
     // { icon: 'Setting', title: 'Settings', url: '/settings' }
 ]
@@ -26,7 +28,6 @@ const logout = () => {
     axios.post('/api/login/logout');
     router.push('/home');
 };
-
 </script>
 
 <template>
@@ -36,9 +37,8 @@ const logout = () => {
         <div id="main-window">
             <div id="headBar">
                 <div class="headBar-item">
-
                     <el-dropdown>
-                        <el-avatar :size="32" class="el-dropdown-link">
+                        <el-avatar :size="32" class="el-dropdown-link" :src="intactPath(userState.userInfo.avatarPath)"> 
 
                         </el-avatar>
                         <template #dropdown>
@@ -65,6 +65,13 @@ const logout = () => {
 </template>
 
 <style scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.4s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  opacity: 0;
+}
+
 :deep(.el-tooltip__trigger:focus-visible) {
     outline: unset;
 }

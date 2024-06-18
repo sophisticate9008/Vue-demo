@@ -56,3 +56,4 @@ export async function uploadFile(file: File) : Promise<string> {
 export function intactPath(path: string) : string{
     return "/api/file/showFileByPath?path=" + path;
 }
+

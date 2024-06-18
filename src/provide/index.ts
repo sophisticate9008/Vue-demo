@@ -6,7 +6,7 @@ const userStateSymbol = Symbol();
 export const createUserState = () => {
     
     const state = reactive({
-        userInfo: null,
+        userInfo: Object as unknown as UserBody,
         setUserInfo(info: any) {
             state.userInfo = info;
         }

@@ -7,7 +7,7 @@ const routes: Array<RouteRecordRaw> = [
     { path: '/profile', name: 'profile', component: () => import('../views/Profile.vue'), meta: { requiresAuth: true } },
     { path: "/setting", name: "setting", component: () => import('../views/Setting.vue'), meta: { requiresAuth: true } },
     { path: "/addCommission", name: "setting", component: () => import('../views/AddCommission.vue'), meta: { requiresAuth: true } },
-    { path: "/home", name: "home", component: () => import('../views/Home.vue')},
+    { path: "/", name: "home", component: () => import('../views/Home.vue')},
     { path: "/commissionDetail/:id", name: "commissionDetail", component: () => import('../views/CommissionDetail.vue'),meta: { requiresAuth: true } }
 ];
 

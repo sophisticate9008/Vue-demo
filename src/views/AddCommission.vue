@@ -78,10 +78,10 @@ const handleSubmit = () => {
 
 <style scoped>
 .form-container {
-    display: flex;
-    justify-content: center;
+    display: inline-flex;
     align-items: center;
-    height: 100vh;
+    justify-content: center;
+    height: 95vh;
     background-color: #f5f5f5;
 }
 

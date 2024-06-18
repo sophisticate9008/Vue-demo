@@ -1,12 +1,67 @@
 <template>
+    <el-dialog v-model="formDialogVisible" title="Edit Form" width="30%">
+        <!-- 在这里放置你的编辑表单内容 -->
+        <!-- 例如： -->
+        <el-form label-width="120px" v-if="data">
+            <!-- Name 表单项 -->
+            <el-form-item label="Name">
+                <el-input v-model="data.name"></el-input>
+            </el-form-item>
 
+            <!-- Description 表单项 -->
+            <el-form-item label="Description">
+                <el-input v-model="data.description"></el-input>
+            </el-form-item>
+
+            <!-- State 表单项 -->
+            <el-form-item label="State">
+                <el-select v-model="data.state">
+                    <el-option label="委托终止" :value="-1"></el-option>
+                    <el-option label="委托进行" :value="0"></el-option>
+                </el-select>
+            </el-form-item>
+
+            <!-- Begin Time 表单项 -->
+            <el-form-item label="Begin Time">
+                <el-date-picker v-model="data.beginTime" type="datetime"></el-date-picker>
+            </el-form-item>
+
+            <!-- End Time 表单项 -->
+            <el-form-item label="End Time">
+                <el-date-picker v-model="data.endTime" type="datetime"></el-date-picker>
+            </el-form-item>
+
+            <!-- Money 表单项 -->
+            <el-form-item label="Money">
+                <el-input v-model="data.money" type="number"></el-input>
+            </el-form-item>
+
+            <!-- Num 表单项 -->
+            <el-form-item label="Num">
+                <el-input v-model="data.num" type="number"></el-input>
+            </el-form-item>
+
+            <!-- 提交和取消按钮 -->
+            <el-form-item>
+                <el-button type="primary" @click="submitForm">Submit</el-button>
+                <el-button @click="formDialogVisible = false">Cancel</el-button>
+                <el-button type="danger" @click="deleteCommission">Delete</el-button>
+            </el-form-item>
+        </el-form>
+
+    </el-dialog>
     <div class="problem">
         <div class="problem-body">
             <div class="head"><span>{{ data?.name }}</span>
-                <div id="lock-button">
-                    <el-button type="primary" size="large" circle @click="changeLockConfirm('lock')">
+                <div id="the-button">
+                    <el-button type="primary" size="large" circle v-if="!isOwner" @click="changeLockConfirm('lock')">
                         <el-icon size="large">
                             <Lock />
+                        </el-icon>
+                    </el-button>
+                    <el-button type="primary" size="large" circle v-else @click="formDialogVisible = true">
+                        <el-icon size="large">
+                            <Edit />
                         </el-icon>
                     </el-button>
                 </div>
@@ -53,8 +108,8 @@
     <div class="solution">
         <el-scrollbar height="340px">
             <div class="replys">
-                <ReplyItem v-for="item in items" :key="item.reply.id" :item="item.reply" :user=item.user :is-owner="isOwner"
-                @unlock="changeLockConfirm('unlock', $event)" />
+                <ReplyItem v-for="item in items" :key="item.reply.id" :item="item.reply" :user=item.user
+                 :is-owner="isOwner" @unlock="changeLockConfirm('unlock', $event)" />
             </div>
         </el-scrollbar>
     </div>
@@ -68,19 +123,18 @@ import axios from 'axios';
 import { ref } from 'vue';
 import { CommissionBody, ReplyBody, UserBody } from '../type';
 import {
-    Lock,
+    Lock, Edit
 } from '@element-plus/icons-vue';
 import { ElMessageBox, ElMessage, dayjs } from 'element-plus';
 import { useUserState } from '../provide';
 import ReplyItem from '../components/ReplyItem.vue';
 import { myElMessage } from '../tool';
 const userState = useUserState();
-
 const route = useRoute();
 const commissionId = route.params.id;
 const data = ref<CommissionBody>();
 const isOwner = ref(false);
-
+const formDialogVisible = ref(false);
 interface Item {
     user: UserBody
     reply: ReplyBody
@@ -104,7 +158,26 @@ const getItemsByCommissionId = async () => {
         }
     })
 }
-
+const submitForm = async () => {
+    try {
+        const res = await axios.post(`/api/commission/update`, data.value);
+        myElMessage(res);
+        formDialogVisible.value = false; // 关闭对话框
+    } catch (error) {
+        console.error('Error submitting form:', error);
+        ElMessage.error('Failed to submit form.');
+    }
+}
+const deleteCommission = async () => {
+    try {
+        const res = await axios.get(`/api/commission/delete?id=${data.value? data.value?.id : null}`);
+        myElMessage(res);
+        formDialogVisible.value = false; // 关闭对话框
+    } catch (error) {
+        console.error('Error submitting form:', error);
+        ElMessage.error('Failed to delete commission.');
+    } 
+}
 const convertToDayjs = (time: string | undefined) => {
     return dayjs(time)
 }
@@ -116,7 +189,7 @@ const sendUnlock = async (replyId: number) => {
     const res = await axios.get('/api/reply/unlock?replyId=' + replyId);
     myElMessage(res)
 }
-const changeLockConfirm = (arg: String,replyId: number = 0) => {
+const changeLockConfirm = (arg: String, replyId: number = 0) => {
     console.log(replyId)
     ElMessageBox.confirm(
         '如果解锁,将失去锁定权,谨慎锁定或解锁',
@@ -152,12 +225,13 @@ getById();
     padding-top: 6px;
 }
 
-#lock-button {
+#the-button {
     position: absolute;
     right: 15px;
 }
 
 .problem {
+    height: 330px;
     border-bottom: 1px solid #EDEDED;
     display: flex;
     flex-direction: row;
@@ -177,12 +251,14 @@ getById();
     width: 16%;
     border-left: 1px solid #EDEDED;
 }
+
 .replys {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(20%, 1fr));
     /* 自动填充，每列最小宽度30% */
     gap: 12px;
 }
+
 .quota {
     flex-grow: 1;
     display: flex;
