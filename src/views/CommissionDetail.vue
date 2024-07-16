@@ -50,69 +50,63 @@
         </el-form>
 
     </el-dialog>
+
     <div class="problem">
-        <div class="problem-body">
-            <div class="head"><span>{{ data?.name }}</span>
-                <div id="the-button">
-                    <el-button type="primary" size="large" circle v-if="!isOwner" @click="changeLockConfirm('lock')">
-                        <el-icon size="large">
-                            <Lock />
-                        </el-icon>
-                    </el-button>
-                    <el-button type="primary" size="large" circle v-else @click="formDialogVisible = true">
-                        <el-icon size="large">
-                            <Edit />
-                        </el-icon>
-                    </el-button>
+        <!-- <div class="head problem-item">
+            <span :class="{ 'active-panel': activePanel == 'problem' }" @click="setActivePanel($event.target, 'problem')">
+                委托详情
+            </span>
+            &nbsp;
+            <span :class="{ 'active-panel': activePanel == 'solution' }"
+             @click="setActivePanel($event.target, 'solution')">
+                回答详情
+            </span>
+            <div class="moving-border"></div>
+            <div id="change-button">
+
+            </div>
+        </div> -->
+        <SwitchHeadBar :menuItems="menuItems" :headStyle="`background-color: white;border: 2px solid #ededed; font-size: 16px; height: 40px; margin-bottom: 10px;`"
+         :itemStyle="`margin: 5px;`" @selHeadMenu="selHeadMenu($event)"></SwitchHeadBar>
+        <div class="problem-body" v-if="activePanel == 'problem'">
+            <div class="problem-main problem-item">
+                <el-scrollbar height="580px">
+                    <div class="description">{{ data?.description }}</div>
+                </el-scrollbar>
+            </div>
+
+            <div class="problem-other">
+                <div style="color: green;" class="problem-item">
+                    <el-countdown format="DD [days] HH:mm:ss" :value="convertToDayjs(data?.beginTime)">
+                    </el-countdown>
+                    <div class="countdown-footer">
+                        {{ convertToDayjs(data?.beginTime).format('YYYY-MM-DD-HH-mm-ss') }}
+                    </div>
                 </div>
-            </div>
-            <el-scrollbar height="300px">
-                <div class="description">{{ data?.description }}</div>
-            </el-scrollbar>
-        </div>
-        <div class="problem-other">
-            <el-countdown format="DD [days] HH:mm:ss" :value="convertToDayjs(data?.beginTime)">
-                <template #title>
-                    <div style="display: inline-flex; align-items: center; margin-top: 20px;">
-                        <el-icon style="margin-right: 4px" :size="12">
-                            <Calendar />
-                        </el-icon>
-                        Still to go until time begin
+                <div style="color: red;" class="problem-item">
+                    <el-countdown format="DD [days] HH:mm:ss" :value="dayjs(data?.endTime)">
+                    </el-countdown>
+                    <div class="countdown-footer">
+                        {{ convertToDayjs(data?.endTime).format('YYYY-MM-DD-HH-mm-ss') }}
                     </div>
-                </template>
-            </el-countdown>
-            <div class="countdown-footer">
-                {{ convertToDayjs(data?.beginTime).format('YYYY-MM-DD-HH-mm-ss') }}
-            </div>
-            <el-divider />
-            <el-countdown format="DD [days] HH:mm:ss" :value="dayjs(data?.endTime)">
-                <template #title>
-                    <div style="display: inline-flex; align-items: center">
-                        <el-icon style="margin-right: 4px" :size="12">
-                            <Calendar />
-                        </el-icon>
-                        Still to go until time stop
-                    </div>
-                </template>
-            </el-countdown>
-            <div class="countdown-footer">
-                {{ convertToDayjs(data?.endTime).format('YYYY-MM-DD-HH-mm-ss') }}
-            </div>
-            <el-divider />
-            <div class="quota">
-                ({{ data?.currentNum }} / {{ data?.num }})
+                </div>
+                <div class="problem-item">
+                    ({{ data?.currentNum }} / {{ data?.num }})
+                </div>
+
             </div>
         </div>
 
+        <div class="solution" v-else>
+            <el-scrollbar height="340px">
+                <div class="replys">
+                    <ReplyItem v-for="item in items" :key="item.reply.id" :item="item.reply" :user=item.user
+                     :is-owner="isOwner" @unlock="changeLockConfirm('unlock', $event)" />
+                </div>
+            </el-scrollbar>
+        </div>
     </div>
-    <div class="solution">
-        <el-scrollbar height="340px">
-            <div class="replys">
-                <ReplyItem v-for="item in items" :key="item.reply.id" :item="item.reply" :user=item.user
-                 :is-owner="isOwner" @unlock="changeLockConfirm('unlock', $event)" />
-            </div>
-        </el-scrollbar>
-    </div>
+
 
 
 </template>
@@ -129,17 +123,28 @@ import { ElMessageBox, ElMessage, dayjs } from 'element-plus';
 import { useUserState } from '../provide';
 import ReplyItem from '../components/ReplyItem.vue';
 import { myElMessage } from '../tool';
+import $ from 'jquery';
+import SwitchHeadBar from '../components/SwitchHeadBar.vue';
 const userState = useUserState();
 const route = useRoute();
 const commissionId = route.params.id;
 const data = ref<CommissionBody>();
 const isOwner = ref(false);
 const formDialogVisible = ref(false);
+const activePanel = ref('problem');
 interface Item {
     user: UserBody
     reply: ReplyBody
 }
 const items = ref<Item[]>([]);
+
+const menuItems = ref([
+    { name: '委托详情', panel: 'problem' },
+    { name: '回答详情', panel: 'solution' }
+]);
+const selHeadMenu = (panel: string) => {
+    activePanel.value = panel;
+}
 const getById = async () => {
     const res = await axios.get('/api/commission/getById?id=' + commissionId);
     data.value = res.data.data
@@ -170,13 +175,13 @@ const submitForm = async () => {
 }
 const deleteCommission = async () => {
     try {
-        const res = await axios.get(`/api/commission/delete?id=${data.value? data.value?.id : null}`);
+        const res = await axios.get(`/api/commission/delete?id=${data.value ? data.value?.id : null}`);
         myElMessage(res);
         formDialogVisible.value = false; // 关闭对话框
     } catch (error) {
         console.error('Error submitting form:', error);
         ElMessage.error('Failed to delete commission.');
-    } 
+    }
 }
 const convertToDayjs = (time: string | undefined) => {
     return dayjs(time)
@@ -225,31 +230,88 @@ getById();
     padding-top: 6px;
 }
 
+
+
+.moving-border {
+    position: absolute;
+    bottom: 0;
+    height: 3px;
+    width: var(--active-panel-width);
+    background-color: #00A1D6;
+    transition: left 0.3s, width 0.3s;
+    left: var(--active-panel-left);
+}
+
+.active-panel {
+    color: #00A1D6;
+}
+
+
+::v-deep .el-statistic__number {
+    font-size: 15px;
+}
+
+::v-deep .el-scrollbar {
+    flex: 1;
+    /* 使 el-scrollbar 占满剩余空间 */
+    overflow: hidden;
+    /* 防止内容溢出 */
+    height: 100%
+}
+
 #the-button {
     position: absolute;
     right: 15px;
 }
 
 .problem {
-    height: 330px;
-    border-bottom: 1px solid #EDEDED;
+    height: 100%;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    border-radius: 5px;
+    margin: 15px
+}
+
+.problem-item {
+    background-color: white;
+    border: 2px solid #ededed;
+    border-radius: 3px;
 }
 
 .problem-body {
     display: flex;
-    flex-direction: column;
-    width: 84%;
+    flex-direction: row;
+    background: none;
+}
+
+
+.problem-main {
+
+    width: 88%;
+    margin-right: 8px;
+    height: 100%;
 }
 
 .problem-other {
-    flex-shrink: 1;
-    display: flex;
-    flex-direction: column;
+    background: none;
+    flex-grow: 1;
+    display: grid;
+    grid-auto-columns: max-content;
+    /* 根据元素自身的最大内容确定列宽 */
+    grid-auto-rows: max-content;
+    /* 自动调整行高 */
+    gap: 5px;
+    /* 设置5px的间距 */
     align-items: center;
-    width: 16%;
-    border-left: 1px solid #EDEDED;
+    box-sizing: border-box;
+    /* 确保 padding 和 border 包含在 width 内 */
+}
+
+.problem-other>div {
+    background-color: white;
+    border-radius: 2px;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 .replys {
@@ -266,13 +328,5 @@ getById();
     margin-bottom: 20px;
 }
 
-.head {
-    position: relative;
-    font-size: 20px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    height: 50px;
-    border-bottom: 1px solid #EDEDED;
-}
+
 </style>

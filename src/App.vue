@@ -26,14 +26,14 @@ const logout = () => {
     window.localStorage.removeItem('authToken');
     console.log('Logged out');
     axios.post('/api/login/logout');
-    router.push('/home');
+    router.push('/');
 };
 </script>
 
 <template>
     <div id="main">
         <Tool></Tool>
-        <SideBar :sidebarItems="sidebarItems" @sel-menuItem="changeSel"></SideBar>
+        <SideBar :sidebarItems="sidebarItems" @sel-menuItem="changeSel" title="委托系统"></SideBar>
         <div id="main-window">
             <div id="headBar">
                 <div class="headBar-item">
@@ -82,11 +82,11 @@ const logout = () => {
 
 #main-content {
     flex-grow: 1;
-
     width: 100%;
 }
 
 #main-window {
+    background-color: #F4F5F7;
     position: relative;
     display: flex;
     flex-direction: column;

@@ -3,7 +3,8 @@
         <template #header>
             <div class="card-header">
                 <span>id:{{ item.id }}</span>
-                <span> 名称:{{ item.name }}</span>
+                <span> 名称:{{ item.name }} 金额:{{ item.money }}</span>
+                
                 <span class="rate">({{ item.currentNum }}/{{ item.num }})</span>
             </div>
         </template>

@@ -83,7 +83,7 @@ const handleLogin = async () => {
         ElMessage(response.data.msg);
         if (response.data.code == 200) {
             isLoggedIn.value = true;
-            window.localStorage.setItem('authToken', response.data.token);
+            window.localStorage.setItem('authToken', response.data.args.jwtToken);
             setTimeout(() => {
                 const redirectPath = route.query.redirect || '/';
                 router.push(redirectPath as string);

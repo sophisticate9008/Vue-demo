@@ -82,7 +82,6 @@ const handleSubmit = () => {
     align-items: center;
     justify-content: center;
     height: 95vh;
-    background-color: #f5f5f5;
 }
 
 .box-card {
