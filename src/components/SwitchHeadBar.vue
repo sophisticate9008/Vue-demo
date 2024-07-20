@@ -17,13 +17,13 @@ import $ from 'jquery';
 const activePanel = ref({
     panel: '',
     left: '0px',
-    width: '60px'
+    width: '0px'
 });
 
 const activePanelBackup = ref({
     panel: '',
     left: '0px',
-    width: '60px'
+    width: '0px'
 });
 
 const emit = defineEmits(["selHeadMenu"]);

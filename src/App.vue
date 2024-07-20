@@ -4,22 +4,19 @@ import SideBar from './components/SideBar.vue';
 import { createUserState } from './provide';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
+import MyQuillEditor from './components/MyQuillEditor.vue';
 import axios from 'axios';
 import { intactPath } from './tool';
-const selUrl = ref('/LoginRegister');
+
 const router = useRouter();
 const userState = createUserState();
 
 const changeSel = (url: string) => {
     router.push(url);
-    console.log(url);
-    if (selUrl.value !== url) {
-        selUrl.value = url;
-    }
 };
 const sidebarItems = [
     { icon: 'HomeFilled', title: '主页', url: '/' },
-    { icon: 'CirclePlus', title: '添加', url: '/addCommission' },
+    { icon: 'CirclePlus', title: '添加', url: '/addOrUpdateCommission/-1' },
     // { icon: 'Setting', title: 'Settings', url: '/settings' }
 ]
 const logout = () => {
@@ -33,7 +30,8 @@ const logout = () => {
 <template>
     <div id="main">
         <Tool></Tool>
-        <SideBar :sidebarItems="sidebarItems" @sel-menuItem="changeSel" title="委托系统"></SideBar>
+        <SideBar :sidebarItems="sidebarItems" title="委托系统"></SideBar>
+        
         <div id="main-window">
             <div id="headBar">
                 <div class="headBar-item">
@@ -50,13 +48,15 @@ const logout = () => {
                         </template>
                     </el-dropdown>
                 </div>
-
             </div>
-            <router-view v-slot="{ Component }">
-                <transition>
-                    <component :is="Component" />
-                </transition>
-            </router-view>
+            <div class="router-container">
+                <router-view v-slot="{ Component }">
+                    <transition>
+                        <component :is="Component" />
+                    </transition>
+                </router-view>                
+            </div>
+
 
 
         </div>
@@ -73,12 +73,15 @@ const logout = () => {
 
 .headBar-item {
     cursor: pointer;
-    width: 32px;
-    height: 32px;
-    margin-right: 20px;
+    width: 2vw;
+    margin-right: 1vw;
 }
 
-
+.router-container {
+    flex-grow: 1;
+    height: 96vh;
+    width: 100%;
+}
 
 #main-content {
     flex-grow: 1;
@@ -98,7 +101,7 @@ const logout = () => {
     display: flex;
     flex-direction: row-reverse;
     align-items: center;
-    height: 50px;
+    height: 6vh;
     width: 100%;
     background-color: #ffffff;
     border-bottom: 1px solid #EDEDED;

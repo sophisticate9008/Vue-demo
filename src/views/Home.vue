@@ -1,6 +1,6 @@
 <template>
     <div class="home">
-        <el-scrollbar height="580px">
+        <el-scrollbar height="80vh">
             <div class="card-container">
                 <div class="card" v-for="item in data.list" @click="jumpDetail(item)">
                     <CommissionCard :item="item">
