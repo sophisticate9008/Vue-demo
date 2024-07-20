@@ -1,5 +1,5 @@
 <template>
-    <el-card style="max-width: 480px">
+    <el-card style="max-width: 40vw">
         <template #header>
             <div class="card-header">
                 <span>id:{{ item.id }}</span>
@@ -35,13 +35,13 @@ defineProps({
 ::v-deep .el-card__footer {
     padding-top: 5px;
     padding-bottom: 5px;
-    font-size: 13px;
+    font-size: 10px;
 }
 
 ::v-deep .el-card__header {
     padding-top: 5px;
     padding-bottom: 5px;
-    font-size: 13px;
+    font-size: 10px;
 }
 
 .card-header {
@@ -54,7 +54,7 @@ defineProps({
 }
 
 .card-body {
-    height: 75px;
+    height: 8vh;
     font-size: 13px;
 }
 </style>

@@ -1,77 +1,23 @@
 <template>
-    <el-dialog v-model="formDialogVisible" title="Edit Form" width="30%">
-        <!-- 在这里放置你的编辑表单内容 -->
-        <!-- 例如： -->
-        <el-form label-width="120px" v-if="data">
-            <!-- Name 表单项 -->
-            <el-form-item label="Name">
-                <el-input v-model="data.name"></el-input>
-            </el-form-item>
 
-            <!-- Description 表单项 -->
-            <el-form-item label="Description">
-                <el-input v-model="data.description"></el-input>
-            </el-form-item>
-
-            <!-- State 表单项 -->
-            <el-form-item label="State">
-                <el-select v-model="data.state">
-                    <el-option label="委托终止" :value="-1"></el-option>
-                    <el-option label="委托进行" :value="0"></el-option>
-                </el-select>
-            </el-form-item>
-
-            <!-- Begin Time 表单项 -->
-            <el-form-item label="Begin Time">
-                <el-date-picker v-model="data.beginTime" type="datetime"></el-date-picker>
-            </el-form-item>
-
-            <!-- End Time 表单项 -->
-            <el-form-item label="End Time">
-                <el-date-picker v-model="data.endTime" type="datetime"></el-date-picker>
-            </el-form-item>
-
-            <!-- Money 表单项 -->
-            <el-form-item label="Money">
-                <el-input v-model="data.money" type="number"></el-input>
-            </el-form-item>
-
-            <!-- Num 表单项 -->
-            <el-form-item label="Num">
-                <el-input v-model="data.num" type="number"></el-input>
-            </el-form-item>
-
-            <!-- 提交和取消按钮 -->
-            <el-form-item>
-                <el-button type="primary" @click="submitForm">Submit</el-button>
-                <el-button @click="formDialogVisible = false">Cancel</el-button>
-                <el-button type="danger" @click="deleteCommission">Delete</el-button>
-            </el-form-item>
-        </el-form>
-
-    </el-dialog>
 
     <div class="problem">
-        <!-- <div class="head problem-item">
-            <span :class="{ 'active-panel': activePanel == 'problem' }" @click="setActivePanel($event.target, 'problem')">
-                委托详情
-            </span>
-            &nbsp;
-            <span :class="{ 'active-panel': activePanel == 'solution' }"
-             @click="setActivePanel($event.target, 'solution')">
-                回答详情
-            </span>
-            <div class="moving-border"></div>
-            <div id="change-button">
-
+        <div class="headbar">
+            <div class="buttons">
+                <el-button type="primary" circle v-if="isOwner" icon="Edit" @click="jumpToChangePage" style="height: 4vh; width: 4vh;"></el-button>
+                <el-button type="danger" circle v-if="isOwner" icon="Delete" @click="deleteCommission" style="height: 4vh; width: 4vh;"></el-button>
+                <el-button type="primary" circle v-else icon="Lock" @click="changeLockConfirm('lock')" style="height: 4vh; width: 4vh;"></el-button>
             </div>
-        </div> -->
-        <SwitchHeadBar :menuItems="menuItems" :headStyle="`background-color: white;border: 2px solid #ededed; font-size: 16px; height: 40px; margin-bottom: 10px;`"
-         :itemStyle="`margin: 5px;`" @selHeadMenu="selHeadMenu($event)"></SwitchHeadBar>
+
+            <SwitchHeadBar :menuItems="menuItems"
+             :headStyle="`background-color: white;border: 2px solid #ededed; font-size: 2.5vh; height: 5vh; margin-bottom: 1.5vh;`"
+             :itemStyle="`margin: 5px;`" @selHeadMenu="selHeadMenu($event)"></SwitchHeadBar>
+        </div>
         <div class="problem-body" v-if="activePanel == 'problem'">
             <div class="problem-main problem-item">
-                <el-scrollbar height="580px">
-                    <div class="description">{{ data?.description }}</div>
+
+                <el-scrollbar height="80vh">
+                    <QuillView class="description" :content="data?.description" />
                 </el-scrollbar>
             </div>
 
@@ -98,7 +44,7 @@
         </div>
 
         <div class="solution" v-else>
-            <el-scrollbar height="340px">
+            <el-scrollbar height="80vh">
                 <div class="replys">
                     <ReplyItem v-for="item in items" :key="item.reply.id" :item="item.reply" :user=item.user
                      :is-owner="isOwner" @unlock="changeLockConfirm('unlock', $event)" />
@@ -112,21 +58,19 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { ref } from 'vue';
 import { CommissionBody, ReplyBody, UserBody } from '../type';
-import {
-    Lock, Edit
-} from '@element-plus/icons-vue';
 import { ElMessageBox, ElMessage, dayjs } from 'element-plus';
 import { useUserState } from '../provide';
 import ReplyItem from '../components/ReplyItem.vue';
 import { myElMessage } from '../tool';
-import $ from 'jquery';
 import SwitchHeadBar from '../components/SwitchHeadBar.vue';
+import QuillView from '../components/QuillView.vue';
 const userState = useUserState();
 const route = useRoute();
+const router = useRouter();
 const commissionId = route.params.id;
 const data = ref<CommissionBody>();
 const isOwner = ref(false);
@@ -140,10 +84,13 @@ const items = ref<Item[]>([]);
 
 const menuItems = ref([
     { name: '委托详情', panel: 'problem' },
-    { name: '回答详情', panel: 'solution' }
+    { name: '回答详情', panel: 'solution' },
 ]);
 const selHeadMenu = (panel: string) => {
     activePanel.value = panel;
+}
+const jumpToChangePage = () => {
+    router.push(`/addOrUpdateCommission/${commissionId}`)
 }
 const getById = async () => {
     const res = await axios.get('/api/commission/getById?id=' + commissionId);
@@ -163,16 +110,7 @@ const getItemsByCommissionId = async () => {
         }
     })
 }
-const submitForm = async () => {
-    try {
-        const res = await axios.post(`/api/commission/update`, data.value);
-        myElMessage(res);
-        formDialogVisible.value = false; // 关闭对话框
-    } catch (error) {
-        console.error('Error submitting form:', error);
-        ElMessage.error('Failed to submit form.');
-    }
-}
+
 const deleteCommission = async () => {
     try {
         const res = await axios.get(`/api/commission/delete?id=${data.value ? data.value?.id : null}`);
@@ -225,12 +163,26 @@ getById();
 
 <style scoped>
 .countdown-footer {
-    font-size: 12px;
+    font-size: 1.6vh;
     color: gary;
     padding-top: 6px;
 }
 
+.headbar {
+    position: relative;
+}
 
+.buttons {
+    z-index: 1;
+    position: absolute;
+    right: 0;
+    display: flex;
+    
+    flex-direction: row-reverse;
+}
+.buttons > * {
+    margin: 5px;
+}
 
 .moving-border {
     position: absolute;
@@ -248,7 +200,7 @@ getById();
 
 
 ::v-deep .el-statistic__number {
-    font-size: 15px;
+    font-size: 2.1vh;
 }
 
 ::v-deep .el-scrollbar {
@@ -259,13 +211,7 @@ getById();
     height: 100%
 }
 
-#the-button {
-    position: absolute;
-    right: 15px;
-}
-
 .problem {
-    height: 100%;
     display: flex;
     flex-direction: column;
     border-radius: 5px;
@@ -327,6 +273,4 @@ getById();
     align-items: center;
     margin-bottom: 20px;
 }
-
-
 </style>

@@ -72,14 +72,14 @@ const updatePreview = () => {
     border-radius: 4px;
     display: inline-block;
     position: relative;
-    height: 200px;
-    width: 200px;
+    height: 30vh;
+    width: 30vh;
 }
 
 .plus-sign {
     
-    font-size: 100px;
-    line-height: 200px;
+    font-size: 90px;
+    line-height: 30vh;
     display: block;
     text-align: center;
 }
@@ -90,6 +90,6 @@ const updatePreview = () => {
 
 .cropper {
     max-width: 100%;
-    height: 400px;
+    height: 50vh;
 }
 </style>

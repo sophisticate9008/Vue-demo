@@ -35,10 +35,7 @@ defineProps({
         type: Boolean,
         required: false
     },
-    selUrl:{
-        type: String,
-        required: false
-    }
+
 });
 
 </script>
@@ -60,7 +57,7 @@ defineProps({
 
 @keyframes fade-out {
     0% {
-        width: 200px;
+        width: 12vw;
     }
 
     /* 定义动画的初始状态 */
@@ -82,13 +79,15 @@ defineProps({
 }
 
 .sidebar-item .el-icon {
-    font-size: 24px;
+    font-size: 2.5vh;
     color: #333;
     /* Default color */
     /* Adjust the icon size and color as needed */
     margin-right: 10px;
 }
-
+.title {
+    font-size: 2.4vh;
+}
 
 .sidebar-item span {
     transition: opacity 0.3s;
