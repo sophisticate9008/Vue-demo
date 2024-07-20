@@ -15,7 +15,11 @@
                     <el-form-item label="名称" prop="name">
                         <el-input v-model="form.name"></el-input>
                     </el-form-item>
+<<<<<<< HEAD
                     <el-form-item label="描述" prop="description">
+=======
+                    <el-form-item label="描述" prop="description" style="display: none;">
+>>>>>>> 1a092c0336c678ed574236dd81dd13a9f8485be3
                         <el-input v-model="form.description"></el-input>
                     </el-form-item>
                     <el-form-item label="开始" prop="beginTime">
@@ -168,7 +172,11 @@ const handleSubmit = () => {
 
 .form {
     height: 74vh;
+<<<<<<< HEAD
     width: 16vw;
+=======
+    width: 14vw;
+>>>>>>> 1a092c0336c678ed574236dd81dd13a9f8485be3
     margin-left: 10px;
     padding: 20px;
     background-color: white;
