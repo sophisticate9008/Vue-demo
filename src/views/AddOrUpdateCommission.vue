@@ -15,7 +15,7 @@
                     <el-form-item label="名称" prop="name">
                         <el-input v-model="form.name"></el-input>
                     </el-form-item>
-                    <el-form-item label="描述" prop="description" style="display: none;">
+                    <el-form-item label="描述" prop="description">
                         <el-input v-model="form.description"></el-input>
                     </el-form-item>
                     <el-form-item label="开始" prop="beginTime">
@@ -168,7 +168,7 @@ const handleSubmit = () => {
 
 .form {
     height: 74vh;
-    width: 14vw;
+    width: 16vw;
     margin-left: 10px;
     padding: 20px;
     background-color: white;
