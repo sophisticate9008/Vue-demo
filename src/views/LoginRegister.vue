@@ -2,48 +2,50 @@
     <div v-if="isLoggedIn">
         <Tool></Tool>
     </div>
-
-    <div class="login-register">
-        <div class="tabs">
-            <button @click="activeTab = 'login'" :class="{ active: activeTab === 'login' }">
-                Login
-            </button>
-            <button @click="activeTab = 'register'" :class="{ active: activeTab === 'register' }">
-                Register
-            </button>
-        </div>
-        <div v-if="activeTab === 'login'">
-            <h2>Login</h2>
-            <form @submit.prevent="handleLogin">
-                <div>
-                    <el-input type="Account" v-model="loginAccount" placeholder="Account" required clearable />
-                </div>
-                <div>
-                    <el-input type="password" v-model="loginPassword" placeholder="Password" required clearable />
-                </div>
-                <div class="verification-code-container">
-                    <el-input type="code" v-model="loginCode" placeholder="Code" required clearable />
-                    <img :src="verificationCodeUrl" @click="refreshVerificationCode" alt="verification code"
-                     class="verification-code" />
-                </div>
-                <button type="submit">Login</button>
-            </form>
-        </div>
-        <div v-if="activeTab === 'register'">
-            <h2>Register</h2>
-            <form @submit.prevent="handleRegister">
-                <div>
-                    <el-input type="Account" v-model="registerAccount" placeholder="Account" required clearable />
-                </div>
-                <div>
-                    <el-input v-model="registerPassword" type="password" placeholder="Password" required clearable />
-                </div>
-                <div>
-                    <el-input type="password" v-model="registerConfirmPassword" placeholder="Confirm Password" required
-                     clearable />
-                </div>
-                <button type="submit">Register</button>
-            </form>
+    <div id="main">
+        <div class="login-register">
+            <div class="tabs">
+                <button @click="activeTab = 'login'" :class="{ active: activeTab === 'login' }">
+                    Login
+                </button>
+                <button @click="activeTab = 'register'" :class="{ active: activeTab === 'register' }">
+                    Register
+                </button>
+            </div>
+            <div v-if="activeTab === 'login'">
+                <h2>Login</h2>
+                <form @submit.prevent="handleLogin">
+                    <div>
+                        <el-input type="Account" v-model="loginAccount" placeholder="Account" required clearable />
+                    </div>
+                    <div>
+                        <el-input type="password" v-model="loginPassword" placeholder="Password" required clearable />
+                    </div>
+                    <div class="verification-code-container">
+                        <el-input type="code" v-model="loginCode" placeholder="Code" required clearable />
+                        <img :src="verificationCodeUrl" @click="refreshVerificationCode" alt="verification code"
+                         class="verification-code" />
+                    </div>
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+            <div v-if="activeTab === 'register'">
+                <h2>Register</h2>
+                <form @submit.prevent="handleRegister">
+                    <div>
+                        <el-input type="Account" v-model="registerAccount" placeholder="Account" required clearable />
+                    </div>
+                    <div>
+                        <el-input v-model="registerPassword" type="password" placeholder="Password" required
+                         clearable />
+                    </div>
+                    <div>
+                        <el-input type="password" v-model="registerConfirmPassword" placeholder="Confirm Password"
+                         required clearable />
+                    </div>
+                    <button type="submit">Register</button>
+                </form>
+            </div>
         </div>
     </div>
 </template>
@@ -130,6 +132,7 @@ h2 {
 }
 
 .login-register {
+    background-color: white;
     max-width: 400px;
     margin: auto;
     padding: 20px;
@@ -143,6 +146,12 @@ h2 {
     margin-bottom: 20px;
 }
 
+#main {
+    height: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .tabs button {
     padding: 10px 20px;
     border: none;

@@ -3,8 +3,7 @@ import Tool from './tool/Tool.vue';
 import SideBar from './components/SideBar.vue';
 import { createUserState } from './provide';
 import { useRouter } from 'vue-router';
-import { ref } from 'vue';
-import MyQuillEditor from './components/MyQuillEditor.vue';
+
 import axios from 'axios';
 import { intactPath } from './tool';
 
@@ -79,7 +78,7 @@ const logout = () => {
 
 .router-container {
     flex-grow: 1;
-    height: 96vh;
+    height: 94vh;
     width: 100%;
 }
 
