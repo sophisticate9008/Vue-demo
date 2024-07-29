@@ -44,7 +44,7 @@
         </div>
 
         <div class="solution" v-else>
-            <el-scrollbar height="80vh">
+            <el-scrollbar height="82vh" style="background-color: white; border:2px solid #ededed;">
                 <div class="replys">
                     <ReplyItem v-for="item in items" :key="item.reply.id" :item="item.reply" :user=item.user
                      :is-owner="isOwner" @unlock="changeLockConfirm('unlock', $event)" />
@@ -261,8 +261,10 @@ getById();
 }
 
 .replys {
+    padding: 3vh;
+    background-color: white;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(20%, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(30%, 1fr));
     /* 自动填充，每列最小宽度30% */
     gap: 12px;
 }

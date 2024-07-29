@@ -17,26 +17,31 @@
 
         </el-dialog>
         <div class="reply-header">
-            <el-avatar :src="intactPath(user.avatarPath)" size="default" />
-            <span>{{ user.account }} {{ convertBeijingTime(item.replyTime) }}</span>
+            <el-avatar :src="intactPath(user.avatarPath)" size="small" style="border: 1px solid #79bcff;"/>
+            <span>
+                <span v-if="isOwner">{{ user.account }}</span> 
+                {{ convertBeijingTime(item.replyTime) }}
+            </span>
             <div class="buttons">
-                <el-button v-if="!isOwner && item.state == -1" type="primary" circle size="default" @click="emit('unlock', item.id)">
-                    <el-icon size="default">
+                <el-button v-if="!isOwner && item.state == -1" type="primary" circle size="small"
+                 @click="emit('unlock', item.id)">
+                    <el-icon size="small">
                         <Unlock />
                     </el-icon>
                 </el-button>
-                <el-button type="primary" circle v-if="!isOwner && (item.state == 0 || item.state == -1)" @click="formDialogVisible = true">
-                    <el-icon size="default">
+                <el-button type="primary" circle size="small" v-if="!isOwner && (item.state == 0 || item.state == -1)"
+                 @click="formDialogVisible = true">
+                    <el-icon size="small">
                         <Edit />
-                    </el-icon>                   
+                    </el-icon>
                 </el-button>
-                <el-button v-if="isOwner" type="success" circle size="default" @click="confirmDialog('apply', item.id)">
-                    <el-icon size="default">
+                <el-button v-if="isOwner" type="success" circle size="small" @click="confirmDialog('apply', item.id)">
+                    <el-icon size="small">
                         <Select />
                     </el-icon>
                 </el-button>
-                <el-button v-if="isOwner" type="danger" circle size="default" @click="confirmDialog('reject', item.id)">
-                    <el-icon size="default">
+                <el-button v-if="isOwner" type="danger" circle size="small" @click="confirmDialog('reject', item.id)">
+                    <el-icon size="small">
                         <Close />
                     </el-icon>
                 </el-button>
@@ -44,9 +49,9 @@
             </div>
 
         </div>
-        <div class="reply-body">
+        <!-- <div class="reply-body">
             {{ item.content }}
-        </div>
+        </div> -->
     </div>
 </template>
 <script setup lang="ts">
@@ -82,7 +87,7 @@ const getClass = (state: number) => {
             return 'reject';
         case 1:
             return 'apply';
-        default:
+            small:
             return '';
     }
 };
@@ -106,7 +111,7 @@ const confirmDialog = (arg: string, id: number) => {
     });
 
 }
-const submitForm = async(item: ReplyBody) => {
+const submitForm = async (item: ReplyBody) => {
     const res = await axios.post("/api/reply/update", item);
     myElMessage(res)
 }
@@ -119,25 +124,27 @@ const submitForm = async(item: ReplyBody) => {
 
 .reply-item.normal {
     background-color: #79bcff88;
-    box-shadow: 0 0 4px 1px #79bcff88;
+
 }
 
 .reply-item.reject {
     background-color: #f3908982;
-    box-shadow: 0 0 4px 1px #f3908982;
+
 }
 
 .reply-item.apply {
     background-color: #a2f78382;
-    box-shadow: 0 0 4px 1px #a2f78382;
+
 }
 
 .reply-item.lock {
     background-color: #fcfcb4ba;
-    box-shadow: 0 0 4px 1px #fcfcb4ba;
+
 }
 
 .reply-item {
+    border-radius: 5px;
+    border: 2px solid #d0d0d0;
     padding: 10px;
     display: flex;
     flex-direction: column;

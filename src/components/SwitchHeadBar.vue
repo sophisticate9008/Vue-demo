@@ -62,7 +62,6 @@ const handleMouseout = (event: MouseEvent) => {
 
 const setActivePanel = (panel: string) => {
 
-    
     activePanel.value.panel = panel;
     const $element = $('#' + panel);
     const pos = $element.position();

@@ -1,11 +1,11 @@
 <template>
     <div class="sidebar" :class="{ collapsed: isCollapsed }">
         <div class="logo">
-            <img :src="logo" alt="logo" width="36vw" height="36vh" />
+            <img :src="logo" alt="logo" width="26vw" height="26vh" />
             <span v-if="!isCollapsed">{{ title }}</span>
         </div>
         <SidebarItem v-for="(item, index) in sidebarItems" :key="index" :icon="item.icon" :title="item.title"
-         :toggle="isCollapsed" :is-active="rootPath == item.url" @click="selSidebarItem(index, item.url)" />
+         :toggle="isCollapsed" :is-active="rootPath == item.url" @click="selSidebarItem(item.url)" />
         <div class="switch">
             <SidebarItem icon="SwitchFilled" title="Sidebar" :is-active="false" :toggle="isCollapsed"
              @click="toggleSidebar" />
@@ -18,6 +18,7 @@ import { ref, defineEmits, defineProps, watch } from 'vue'
 import SidebarItem from './SidebarItem.vue'; // 使用正确的大小写
 import { SideBarItemBody } from '../type';
 import { useRoute, useRouter } from 'vue-router';
+import $ from 'jquery';
 const route = useRoute();
 const router = useRouter();
 const rootPath = ref("/")
@@ -54,7 +55,7 @@ const toggleSidebar = () => {
 const emit = defineEmits(["sel-menuItem"])
 
 // 切换侧边栏项选中状态
-const selSidebarItem = (index: any, url: any) => {
+const selSidebarItem = ( url: any) => {
 
     router.push(url)
     rootPath.value = route.path;
@@ -64,6 +65,7 @@ const selSidebarItem = (index: any, url: any) => {
 
 }
 watch(route, () => { rootPath.value = route.path;});
+
 </script>
 
 <style scoped>
@@ -106,12 +108,12 @@ watch(route, () => { rootPath.value = route.path;});
 
 @keyframes fade-out {
     0% {
-        width: 12vw;
+        width: 9vw;
     }
 
     /* 定义动画的初始状态 */
-    100% {
-        width: 45px;
+    99% {
+        width: 35px;
     }
 
     /* 定义动画的最终状态 */
@@ -124,7 +126,7 @@ watch(route, () => { rootPath.value = route.path;});
 
     /* 定义动画的初始状态 */
     100% {
-        width: 12vw;
+        width: 10vw;
     }
 
     /* 定义动画的最终状态 */

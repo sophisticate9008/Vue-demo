@@ -46,7 +46,7 @@ defineProps({
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 10px;
+    padding: 8px;
     transition: width 0.3s;
     cursor: pointer;
 }
@@ -62,7 +62,7 @@ defineProps({
 
     /* 定义动画的初始状态 */
     100% {
-        width: 25px;
+        width: auto;
     }
 
     /* 定义动画的最终状态 */
@@ -83,14 +83,18 @@ defineProps({
     color: #333;
     /* Default color */
     /* Adjust the icon size and color as needed */
-    margin-right: 10px;
 }
+
 .title {
-    font-size: 2.4vh;
+    font-size: 1.8vh;
+    font-weight: bold;
 }
 
 .sidebar-item span {
+    margin-left: 10px;
     transition: opacity 0.3s;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .sidebar-item.collapsed span {
