@@ -1,5 +1,5 @@
 <template>
-    <QuillEditor :toolbar="toolBar" :modules="modules" style="background-color: white;" :content="editorContent"
+    <QuillEditor :toolbar="toolBar" :modules="modules" style="background-color: white;"
      @update:content="updateContent" contentType="html"></QuillEditor>
 </template>
 <script setup lang="ts">
@@ -8,13 +8,8 @@ import BlotFormatter from 'quill-blot-formatter'
 import ImageUploader from 'quill-image-uploader';
 import { intactPath } from '../tool';
 
-defineProps({
-    editorContent: {
-        type: String,
-        required: true
-    }
-})
 const emit = defineEmits(['update:content'])
+
 const updateContent = (newContent: string) => {
     emit("update:content", newContent);
 }

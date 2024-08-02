@@ -8,7 +8,7 @@
 
         <div class="box-card">
             <div class="editor">
-                <MyQuillEditor :editor-content="form.description"  @update:content="form.description = $event" />
+                <MyQuillEditor @update:content="form.description = $event" :content="form.description"/>
             </div>
             <div class="form">
                 <el-form :model="form" @submit.prevent="handleSubmit" ref="formRef" :rules="rules">

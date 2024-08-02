@@ -4,9 +4,26 @@
     <div class="problem">
         <div class="headbar">
             <div class="buttons">
-                <el-button type="primary" circle v-if="isOwner" icon="Edit" @click="jumpToChangePage" style="height: 4vh; width: 4vh;"></el-button>
-                <el-button type="danger" circle v-if="isOwner" icon="Delete" @click="deleteCommission" style="height: 4vh; width: 4vh;"></el-button>
-                <el-button type="primary" circle v-else icon="Lock" @click="changeLockConfirm('lock')" style="height: 4vh; width: 4vh;"></el-button>
+                <el-button type="primary" circle v-if="isOwner && activePanel == 'problem'" icon="Edit"
+                 @click="jumpToChangePage" style="height: 4vh; width: 4vh;"></el-button>
+
+                <el-button type="danger" circle v-if="isOwner && activePanel == 'problem'" icon="Delete"
+                 @click="deleteCommission" style="height: 4vh; width: 4vh;"></el-button>
+
+                <el-button type="success" circle v-if="isOwner && activePanel == 'solution'" icon="Check"
+                 @click="confirmDialog('apply', replySel?.id as number)" style="height: 4vh; width: 4vh;"></el-button>
+
+                <el-button type="danger" circle v-if="isOwner && activePanel == 'solution'" icon="close"
+                 @click="confirmDialog('reject', replySel?.id as number)" style="height: 4vh; width: 4vh;"></el-button>
+
+                <el-button type="primary" circle v-if="!isOwner && activePanel == 'problem'" icon="Lock"
+                 @click="changeLockConfirm('lock')" style="height: 4vh; width: 4vh;"></el-button>
+
+                <el-button type="primary" circle v-if="!isOwner && activePanel == 'solution'" icon="Checked"
+                 @click="submitReplyForm(replySel as ReplyBody)" style="height: 4vh; width: 4vh;"></el-button>
+
+                <el-button type="danger" circle v-if="!isOwner && activePanel == 'solution'" icon="Unlock"
+                 @click="changeLockConfirm('unlock', replySel?.id)" style="height: 4vh; width: 4vh;"></el-button>
             </div>
 
             <SwitchHeadBar :menuItems="menuItems"
@@ -44,12 +61,17 @@
         </div>
 
         <div class="solution" v-else>
-            <el-scrollbar height="82vh" style="background-color: white; border:2px solid #ededed;">
-                <div class="replys">
-                    <ReplyItem v-for="item in items" :key="item.reply.id" :item="item.reply" :user=item.user
-                     :is-owner="isOwner" @unlock="changeLockConfirm('unlock', $event)" />
-                </div>
-            </el-scrollbar>
+            <div style="border:2px solid #ededed;">
+                <el-scrollbar height="82vh" style="background-color: white; width: 15vw;">
+                    <div class="replys">
+                        <ReplyItem v-for="item in items" :key="item.reply.id" :item="item.reply" :user=item.user
+                         :is-owner="isOwner" @sel="selitem($event)" :isSel="replySel?.id == item.reply.id" />
+                    </div>
+                </el-scrollbar>
+            </div>
+            <div class="replys-view">
+                <ReplyView v-if="replySel" :item="replySel" :is-owner="isOwner"></ReplyView>
+            </div>
         </div>
     </div>
 
@@ -68,6 +90,7 @@ import ReplyItem from '../components/ReplyItem.vue';
 import { myElMessage } from '../tool';
 import SwitchHeadBar from '../components/SwitchHeadBar.vue';
 import QuillView from '../components/QuillView.vue';
+import ReplyView from '../components/ReplyView.vue';
 const userState = useUserState();
 const route = useRoute();
 const router = useRouter();
@@ -76,12 +99,16 @@ const data = ref<CommissionBody>();
 const isOwner = ref(false);
 const formDialogVisible = ref(false);
 const activePanel = ref('problem');
+const replySel = ref<ReplyBody>();
 interface Item {
     user: UserBody
     reply: ReplyBody
 }
 const items = ref<Item[]>([]);
 
+const selitem = (reply: ReplyBody) => {
+    replySel.value = reply;
+}
 const menuItems = ref([
     { name: '委托详情', panel: 'problem' },
     { name: '回答详情', panel: 'solution' },
@@ -156,7 +183,29 @@ const changeLockConfirm = (arg: String, replyId: number = 0) => {
         });
     });
 }
+const sendApplyOrReject = async (arg: string, replyId: number) => {
+    const res = await axios.get(`/api/reply/${arg}?replyId=` + replyId);
+    myElMessage(res);
+}
+const confirmDialog = (arg: string, id: number) => {
+    ElMessageBox.confirm("操作不可回退", '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+    }).then(() => {
+        sendApplyOrReject(arg, id);
+    }).catch(() => {
+        ElMessage({
+            type: 'info',
+            message: '已取消'
+        });
+    });
 
+}
+const submitReplyForm = async (item: ReplyBody) => {
+    const res = await axios.post("/api/reply/update", item);
+    myElMessage(res)
+}
 getById();
 
 </script>
@@ -168,6 +217,17 @@ getById();
     padding-top: 6px;
 }
 
+.solution {
+    display: flex;
+    flex-direction: row;
+}
+
+.replys-view {
+    flex-grow: 1;
+    background-color: white;
+    border: 2px solid #ededed;
+}
+
 .headbar {
     position: relative;
 }
@@ -177,10 +237,11 @@ getById();
     position: absolute;
     right: 0;
     display: flex;
-    
+
     flex-direction: row-reverse;
 }
-.buttons > * {
+
+.buttons>* {
     margin: 5px;
 }
 
@@ -261,12 +322,8 @@ getById();
 }
 
 .replys {
-    padding: 3vh;
+    padding: 0.5vw;
     background-color: white;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(30%, 1fr));
-    /* 自动填充，每列最小宽度30% */
-    gap: 12px;
 }
 
 .quota {

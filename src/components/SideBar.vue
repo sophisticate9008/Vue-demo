@@ -18,7 +18,6 @@ import { ref, defineEmits, defineProps, watch } from 'vue'
 import SidebarItem from './SidebarItem.vue'; // 使用正确的大小写
 import { SideBarItemBody } from '../type';
 import { useRoute, useRouter } from 'vue-router';
-import $ from 'jquery';
 const route = useRoute();
 const router = useRouter();
 const rootPath = ref("/")
