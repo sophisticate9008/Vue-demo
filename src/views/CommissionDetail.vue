@@ -154,10 +154,12 @@ const convertToDayjs = (time: string | undefined) => {
 const sendLock = async () => {
     const res = await axios.get('/api/reply/lock?commissionId=' + commissionId);
     myElMessage(res)
+    getItemsByCommissionId()
 }
 const sendUnlock = async (replyId: number) => {
     const res = await axios.get('/api/reply/unlock?replyId=' + replyId);
     myElMessage(res)
+    getItemsByCommissionId()
 }
 const changeLockConfirm = (arg: String, replyId: number = 0) => {
     console.log(replyId)
