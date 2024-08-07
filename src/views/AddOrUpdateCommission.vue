@@ -45,6 +45,7 @@ import { useUserState } from '../provide';
 import { myElMessage } from '../tool';
 import { useRoute } from 'vue-router';
 import MyQuillEditor from '../components/MyQuillEditor.vue';
+import DOMPurify from 'dompurify';
 const formRef = ref();
 const actionType = ref("添加");
 const route = useRoute();
@@ -112,6 +113,7 @@ const update = async () => {
     }
 }
 const handleSubmit = () => {
+    form.value.description = DOMPurify.sanitize(form.value.description);
     formRef.value?.validate(async (valid: any) => {
         if (valid) {
             if (actionType.value == "修改") {

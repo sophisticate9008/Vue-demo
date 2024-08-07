@@ -56,13 +56,15 @@
                 <div class="problem-item">
                     ({{ data?.currentNum }} / {{ data?.num }})
                 </div>
+                <div class="problem-item">
 
+                </div>
             </div>
         </div>
 
         <div class="solution" v-else>
             <div style="border:2px solid #ededed;">
-                <el-scrollbar height="82vh" style="background-color: white; width: 15vw;">
+                <el-scrollbar height="80vh" style="background-color: white; width: 15vw;">
                     <div class="replys">
                         <ReplyItem v-for="item in items" :key="item.reply.id" :item="item.reply" :user=item.user
                          :is-owner="isOwner" @sel="selitem($event)" :isSel="replySel?.id == item.reply.id" />
@@ -87,10 +89,12 @@ import { CommissionBody, ReplyBody, UserBody } from '../type';
 import { ElMessageBox, ElMessage, dayjs } from 'element-plus';
 import { useUserState } from '../provide';
 import ReplyItem from '../components/ReplyItem.vue';
-import { myElMessage } from '../tool';
+import { getUserBasicInfo, myElMessage } from '../tool';
 import SwitchHeadBar from '../components/SwitchHeadBar.vue';
 import QuillView from '../components/QuillView.vue';
 import ReplyView from '../components/ReplyView.vue';
+import DOMPurify from 'dompurify';
+
 const userState = useUserState();
 const route = useRoute();
 const router = useRouter();
@@ -105,7 +109,7 @@ interface Item {
     reply: ReplyBody
 }
 const items = ref<Item[]>([]);
-
+const ownerInfo = ref<UserBody>();
 const selitem = (reply: ReplyBody) => {
     replySel.value = reply;
 }
@@ -120,9 +124,11 @@ const jumpToChangePage = () => {
     router.push(`/addOrUpdateCommission/${commissionId}`)
 }
 const getById = async () => {
-    const res = await axios.get('/api/commission/getById?id=' + commissionId);
+    var res = await axios.get('/api/commission/getById?id=' + commissionId);
     data.value = res.data.data
     isOwner.value = userState.userInfo.account == data.value?.account
+    ownerInfo.value = await getUserBasicInfo(data.value?.account as string)
+    console.log(ownerInfo.value);
     getItemsByCommissionId()
 }
 const getItemsByCommissionId = async () => {
@@ -131,6 +137,7 @@ const getItemsByCommissionId = async () => {
         accounts: res1.data.data.map((item: ReplyBody) => item.account)
     })
     items.value = res1.data.data.map((item: ReplyBody, index: number) => {
+        item.content = DOMPurify.sanitize(item.content)
         return {
             user: res2.data.data[index],
             reply: item

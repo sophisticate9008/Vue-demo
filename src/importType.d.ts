@@ -1,6 +1,6 @@
 declare module 'quill-image-uploader' {
 }
 
-declare module 'Search' {
-
+declare module  'dompurify'{
+    export function sanitize(html: string): string;
 }

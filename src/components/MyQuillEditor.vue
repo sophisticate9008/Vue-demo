@@ -11,7 +11,10 @@ import { Quill } from '@vueup/vue-quill';
 import { onMounted, ref } from 'vue';
 
 var Link = Quill.import('formats/link');
-class FileBlot extends Link {  // 继承Link Blot
+class FileBlot extends Link {
+    static blotName: string;  // 继承Link Blot
+    static tagName: string;
+
     static create(value: any) {
         let node = undefined
         if (value && !value.href) {  // 适应原本的Link Blot
@@ -25,12 +28,13 @@ class FileBlot extends Link {  // 继承Link Blot
         return node;
     }
 }
-FileBlot.blotName = 'link';
+FileBlot.blotName  = 'link';
 FileBlot.tagName = 'A';
 Quill.register(FileBlot);
 const quillEditor = ref<any>(null);
 const emit = defineEmits(['update:content'])
 const updateContent = (newContent: string) => {
+    
     emit("update:content", newContent);
 }
 const myUploadFile = function () {

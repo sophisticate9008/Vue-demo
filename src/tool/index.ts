@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import { ElMessage } from "element-plus";
+import { UserBody } from "../type";
 
 /**
  * 将数据库中存储的北京时间 LocalDateTime 转换为指定格式的字符串
@@ -55,5 +56,39 @@ export async function uploadFile(file: File) : Promise<string> {
  */
 export function intactPath(path: string) : string{
     return "/api/file/showFileByPath?path=" + path;
+}
+
+/**
+ * 获取用户基本信息
+ * @param account - 单个用户账号
+ * @returns 单个用户的基本信息
+ */
+export async function getUserBasicInfo(account: string): Promise<UserBody>;
+
+/**
+ * 获取用户基本信息
+ * @param accounts - 用户账号列表
+ * @returns 用户基本信息数组
+ */
+export async function getUserBasicInfo(accounts: string[]): Promise<UserBody[]>;
+
+/**
+ * 获取用户基本信息
+ * @param accountOrAccounts - 单个用户账号或用户账号列表
+ * @returns 单个用户的基本信息或用户基本信息数组
+ */
+export async function getUserBasicInfo(accountOrAccounts: string | string[]): Promise<UserBody | UserBody[]> {
+  const accounts = Array.isArray(accountOrAccounts) ? accountOrAccounts : [accountOrAccounts];
+  const res = await axios.post('/api/user/basicInfos', { accounts });
+
+  const data = res.data.data as UserBody[];
+
+  // 如果传入的是单个账号，则返回第一个用户信息
+  if (!Array.isArray(accountOrAccounts)) {
+    return data[0];
+  }
+
+  // 否则返回用户信息数组
+  return data;
 }
 
