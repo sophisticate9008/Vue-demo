@@ -1,7 +1,7 @@
 <template>
     <div class="reply-item" :class="[getClass(item.state), { active: isSel }]" @click="emit('sel', item)">
         <div class="reply-header">
-            <el-avatar :src="intactPath(user.avatarPath)" style="width: 2vw; height: 2vw;" />
+            <AvatarWithInfo :item="user" :avatar-style="{width: '2vw', height: '2vw'}" />
             <div class="title">
                 <span>{{ user.account }}</span>
                 <span style="color: #79bcff; font-size: 10px;">{{ convertBeijingTime(item.replyTime) }}</span>
@@ -15,9 +15,7 @@
 
 import { convertBeijingTime } from '../tool';
 import { ReplyBody, UserBody } from '../type';
-
-
-import { intactPath } from '../tool';
+import AvatarWithInfo from './AvatarWithInfo.vue';
 
 
 

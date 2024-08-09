@@ -24,12 +24,12 @@ export interface UserBody {
     id: number;
     account: string;
     name: string;
-    phone: string;
-    email: string;
+    // phone: string;
+    // email: string;
     avatarPath: string;
     sex: number;
     age: number;
-
+    signature: string;
 }
 
 export interface SideBarItemBody {

@@ -53,10 +53,11 @@
                         {{ convertToDayjs(data?.endTime).format('YYYY-MM-DD-HH-mm-ss') }}
                     </div>
                 </div>
-                <div class="problem-item">
-                    ({{ data?.currentNum }} / {{ data?.num }})
-                </div>
-                <div class="problem-item">
+                <div class="problem-item" style="display: inline-flex; align-items: center;  ">
+                    <AvatarWithInfo v-if="ownerInfo" :item="ownerInfo"></AvatarWithInfo>
+                    <span >
+                        &nbsp;&nbsp;({{ data?.currentNum }} / {{ data?.num }})
+                    </span>
 
                 </div>
             </div>
@@ -94,6 +95,7 @@ import SwitchHeadBar from '../components/SwitchHeadBar.vue';
 import QuillView from '../components/QuillView.vue';
 import ReplyView from '../components/ReplyView.vue';
 import DOMPurify from 'dompurify';
+import AvatarWithInfo from '../components/AvatarWithInfo.vue';
 
 const userState = useUserState();
 const route = useRoute();
