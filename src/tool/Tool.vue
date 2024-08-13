@@ -5,9 +5,11 @@ import { ref } from 'vue';
 import axiosClient from "../utils/AxiosClient";
 import axios from "axios";
 import { ElMessage } from "element-plus";
+import { WebSocketService } from "../utils/WebSocket";
 const isLogin = ref(false);
+const userState = useUserState();
 const fetchUserInfo = async () => {
-    const userState = useUserState(); // 在这里调用 useUserState 函数
+    // 在这里调用 useUserState 函数
     try {
         const response = await axios.get('/api/user/info');
         userState.setUserInfo(response.data.data);
@@ -37,4 +39,16 @@ if(isLogin.value){
 
 }
 
+const initWebsocketUUID = async () => {
+    const uuid = crypto.randomUUID();
+    userState.setWebsocketUuid(uuid);
+    const websocket = new WebSocketService('/websocket')
+    setTimeout(() => {
+        websocket.sendMessage({
+            uuid: uuid,
+        })        
+    }, 1000);
+
+}
+initWebsocketUUID()
 </script>

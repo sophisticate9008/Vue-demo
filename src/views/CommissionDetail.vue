@@ -67,7 +67,7 @@
             <div style="border:2px solid #ededed;">
                 <el-scrollbar height="80vh" style="background-color: white; width: 15vw;">
                     <div class="replys">
-                        <ReplyItem v-for="item in items" :key="item.reply.id" :item="item.reply" :user=item.user
+                        <ItemSel type="reply" v-for="item in items" :key="item.reply.id" :item="item.reply" :user=item.user
                          :is-owner="isOwner" @sel="selitem($event)" :isSel="replySel?.id == item.reply.id" />
                     </div>
                 </el-scrollbar>
@@ -89,13 +89,13 @@ import { ref } from 'vue';
 import { CommissionBody, ReplyBody, UserBody } from '../type';
 import { ElMessageBox, ElMessage, dayjs } from 'element-plus';
 import { useUserState } from '../provide';
-import ReplyItem from '../components/ReplyItem.vue';
 import { getUserBasicInfo, myElMessage } from '../tool';
 import SwitchHeadBar from '../components/SwitchHeadBar.vue';
 import QuillView from '../components/QuillView.vue';
 import ReplyView from '../components/ReplyView.vue';
 import DOMPurify from 'dompurify';
 import AvatarWithInfo from '../components/AvatarWithInfo.vue';
+import ItemSel from '../components/ItemSel.vue';
 
 const userState = useUserState();
 const route = useRoute();

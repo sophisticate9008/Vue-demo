@@ -1,11 +1,13 @@
 <template>
-    <div class="reply-item" :class="[getClass(item.state), { active: isSel }]" @click="emit('sel', item)">
+    <div class="the-item" :class="[getClass(item.state), { active: isSel }]" @click="emit('sel', item)">
         <div class="reply-header">
-            <AvatarWithInfo :item="user" :avatar-style="{width: '2vw', height: '2vw'}" />
+            <AvatarWithInfo :item="user" :avatar-style="{ width: '2vw', height: '2vw' }" />
             <div class="title">
                 <span>{{ user.account }}</span>
                 <span style="color: #79bcff; font-size: 10px;">{{ convertBeijingTime(item.replyTime) }}</span>
             </div>
+            <el-badge v-if="type != 'reply'" :value="1" class="badge" :badge-style="{'font-size':'10px','background-color': '#79bcffae'} " type="primary">
+            </el-badge>
 
         </div>
 
@@ -19,13 +21,17 @@ import AvatarWithInfo from './AvatarWithInfo.vue';
 
 
 
-defineProps<{
+const props = defineProps<{
     item: ReplyBody
     user: UserBody
     isOwner: boolean
     isSel: boolean
+    type: string
 }>();
 const getClass = (state: number) => {
+    if (!(props.type == 'reply')) {
+        return 'normal';
+    }
     switch (state) {
         case -1:
             return 'lock';
@@ -40,57 +46,34 @@ const getClass = (state: number) => {
     }
 };
 const emit = defineEmits(["sel"]);
-// const sendApplyOrRegect = async (arg: string, replyId: number) => {
-//     const res = await axios.get(`/api/reply/${arg}?replyId=` + replyId);
-//     myElMessage(res);
-// }
-// const confirmDialog = (arg: string, id: number) => {
-//     ElMessageBox.confirm("操作不可回退", '警告', {
-//         confirmButtonText: '确定',
-//         cancelButtonText: '取消',
-//         type: 'warning'
-//     }).then(() => {
-//         sendApplyOrRegect(arg, id);
-//     }).catch(() => {
-//         ElMessage({
-//             type: 'info',
-//             message: '已取消'
-//         });
-//     });
-
-// }
-// const submitForm = async (item: ReplyBody) => {
-//     const res = await axios.post("/api/reply/update", item);
-//     myElMessage(res)
-// }
 </script>
 <style scoped>
-.reply-item.unlock {
+.the-item.unlock {
     box-shadow: 0 0 4px 1px rgba(147, 147, 147, 0.296);
     background-color: rgba(147, 147, 147, 0.296);
 }
 
-.reply-item.normal {
+.the-item.normal {
     background-color: #79bcff48;
 
 }
 
-.reply-item.reject {
+.the-item.reject {
     background-color: #f3908969;
 
 }
 
-.reply-item.apply {
+.the-item.apply {
     background-color: #a2f7836e;
 
 }
 
-.reply-item.lock {
+.the-item.lock {
     background-color: #fcfcb46f;
 
 }
 
-.reply-item {
+.the-item {
 
     cursor: pointer;
     padding: 10px;
@@ -99,17 +82,17 @@ const emit = defineEmits(["sel"]);
     border-left: 4px solid #79bcff00;
 }
 
-.reply-item:hover {
+.the-item:hover {
     border-left: 4px solid #79bcffae;
     background-color: #79bcff2f;
 }
 
-.reply-item.active {
+.the-item.active {
     position: relative;
     border-left: 4px solid #79bcff;
 }
 
-.reply-item.active::before {
+.the-item.active::before {
     content: '';
     position: absolute;
     top: 0;
@@ -150,5 +133,10 @@ const emit = defineEmits(["sel"]);
     margin-left: 0.5vw;
     display: flex;
     flex-direction: column;
+}
+.badge {
+    position: absolute;
+    right: 0;
+    
 }
 </style>
