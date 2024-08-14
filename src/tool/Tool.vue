@@ -1,6 +1,6 @@
-<script setup>
+<script setup lang="ts">
 import { useUserState } from "../provide";
-import { ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 import axiosClient from "../utils/AxiosClient";
 import axios from "axios";
@@ -19,36 +19,54 @@ const fetchUserInfo = async () => {
         console.error('获取用户信息失败:', error);
     }
 };
-const judgeLogin = async() => {
+const judgeLogin = async () => {
     const response = await axiosClient.get('/api/login/isLogin');
-    if(response.data.code == 200){
+    if (response.data.code == 200) {
         isLogin.value = true;
-    }else{
+    } else {
         isLogin.value = false;
     }
 }
 await judgeLogin();
 
-if(isLogin.value){
+if (isLogin.value) {
     await fetchUserInfo();
-}else {
-    if(window.localStorage.getItem('authToken')) {
+} else {
+    if (window.localStorage.getItem('authToken')) {
         window.localStorage.removeItem('authToken');
-        ElMessage.error('登录状态失效,请重新登录');        
+        ElMessage.error('登录状态失效,请重新登录');
     }
 
 }
-
+var websocket = ref<WebSocketService>();
 const initWebsocketUUID = async () => {
     const uuid = crypto.randomUUID();
     userState.setWebsocketUuid(uuid);
-    const websocket = new WebSocketService('/websocket')
-    setTimeout(() => {
-        websocket.sendMessage({
-            uuid: uuid,
-        })        
-    }, 1000);
-
+    websocket.value = new WebSocketService('/websocket')
 }
 initWebsocketUUID()
+const disconnect = async () => {
+    navigator.sendBeacon('/api/session/stop')
+    websocket.value?.closeConnection()
+
+}
+
+
+window.addEventListener('beforeunload', () => {
+    const currentTime = new Date().getTime();
+    localStorage.setItem('beforeunload', currentTime.toString());
+    disconnect();
+});
+setTimeout(() => {
+    if (localStorage.getItem('beforeunload')) {
+        const beforeunloadTime = parseInt(localStorage.getItem('beforeunload') || '0');
+        const currentTime = new Date().getTime();
+        const timeDifference = currentTime - beforeunloadTime;
+        console.log(timeDifference);
+        if (timeDifference < 1500) {
+            disconnect();
+        }
+    }
+    localStorage.removeItem('beforeunload');
+}, 1000);
 </script>
