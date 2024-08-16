@@ -38,3 +38,11 @@ export interface SideBarItemBody {
     icon: string;
 
 }
+export interface MessageBody {
+    id: number;
+    content: string;
+    sender: string;
+    receiver: string;
+    sendTime: string;
+    haveRead: boolean;
+}

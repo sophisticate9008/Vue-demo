@@ -1,19 +1,22 @@
 import { reactive, provide, inject } from 'vue';
 import { UserBody } from '../type';
+import { WebSocketService } from '../utils/WebSocket';
 
 const userStateSymbol = Symbol();
 
 export const createUserState = () => {
-    
+
     const state = reactive({
         userInfo: Object as unknown as UserBody,
         uuid: '',
+        webSocketInstance: null as WebSocketService | null,
         setUserInfo(info: any) {
             state.userInfo = info;
         },
-        setWebsocketUuid(string: string) {
-            state.uuid = string;
+        setWebsocketInstance(webSocketInstance: WebSocketService) {
+            state.webSocketInstance = webSocketInstance;
         }
+
     });
 
     provide(userStateSymbol, state);
@@ -22,10 +25,10 @@ export const createUserState = () => {
 };
 
 export const useUserState = () => {
-    const state = inject<{ userInfo: UserBody, setUserInfo: (info: any) => void , setWebsocketUuid: (uuid: string) => void}>(userStateSymbol);
+    const state = inject<{ userInfo: UserBody, setUserInfo: (info: any) => void, setWebsocketInstance: (websocketInstance: WebSocketService) => void }>(userStateSymbol);
     if (!state) {
-      throw new Error('useUserState must be used within a provider');
+        throw new Error('useUserState must be used within a provider');
     }
     return state;
-  };
-  
+};
+

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useUserState } from "../provide";
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { ref } from 'vue';
 
 import axiosClient from "../utils/AxiosClient";
 import axios from "axios";
@@ -38,35 +38,23 @@ if (isLogin.value) {
     }
 
 }
-var websocket = ref<WebSocketService>();
+var websocketInstance: WebSocketService;
 const initWebsocketUUID = async () => {
     const uuid = crypto.randomUUID();
-    userState.setWebsocketUuid(uuid);
-    websocket.value = new WebSocketService('/websocket')
+    await axios.get("/api/message/initUuid?uuid=" + uuid);
+    websocketInstance = new WebSocketService('/websocket', uuid)
+    userState.setWebsocketInstance(websocketInstance);
 }
 initWebsocketUUID()
-const disconnect = async () => {
-    navigator.sendBeacon('/api/session/stop')
-    websocket.value?.closeConnection()
-
+const disconnect = async (arg: string) => {
+    let data = new FormData();
+    data.append("arg", arg);
+    navigator.sendBeacon('/api/session/stop', data)
 }
 
 
 window.addEventListener('beforeunload', () => {
-    const currentTime = new Date().getTime();
-    localStorage.setItem('beforeunload', currentTime.toString());
-    disconnect();
+    disconnect("beforeunload");
 });
-setTimeout(() => {
-    if (localStorage.getItem('beforeunload')) {
-        const beforeunloadTime = parseInt(localStorage.getItem('beforeunload') || '0');
-        const currentTime = new Date().getTime();
-        const timeDifference = currentTime - beforeunloadTime;
-        console.log(timeDifference);
-        if (timeDifference < 1500) {
-            disconnect();
-        }
-    }
-    localStorage.removeItem('beforeunload');
-}, 1000);
+disconnect("load");
 </script>
