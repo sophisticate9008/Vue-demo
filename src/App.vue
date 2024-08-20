@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Tool from './tool/Tool.vue';
+import Init from './tool/Init.vue';
 import SideBar from './components/SideBar.vue';
 import { createUserState } from './provide';
 import { useRouter } from 'vue-router';
@@ -28,14 +28,14 @@ const logout = () => {
 
 <template>
     <div id="main">
-        <Tool></Tool>
+        <Init></Init>
         <SideBar :sidebarItems="sidebarItems" title="委托系统"></SideBar>
-        
+
         <div id="main-window">
             <div id="headBar">
                 <div class="headBar-item">
                     <el-dropdown>
-                        <el-avatar :size="32" class="el-dropdown-link" :src="intactPath(userState.userInfo.avatarPath)"> 
+                        <el-avatar :size="32" class="el-dropdown-link" :src="intactPath(userState.userInfo.avatarPath)">
 
                         </el-avatar>
                         <template #dropdown>
@@ -53,7 +53,7 @@ const logout = () => {
                     <transition>
                         <component :is="Component" />
                     </transition>
-                </router-view>                
+                </router-view>
             </div>
 
 
@@ -64,8 +64,6 @@ const logout = () => {
 </template>
 
 <style scoped>
-
-
 :deep(.el-tooltip__trigger:focus-visible) {
     outline: unset;
 }

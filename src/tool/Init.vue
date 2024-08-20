@@ -38,14 +38,17 @@ if (isLogin.value) {
     }
 
 }
-var websocketInstance: WebSocketService;
-const initWebsocketUUID = async () => {
+var webSocketInstance: WebSocketService;
+const initWebsocket = async () => {
     const uuid = crypto.randomUUID();
     await axios.get("/api/message/initUuid?uuid=" + uuid);
-    websocketInstance = new WebSocketService('/websocket', uuid)
-    userState.setWebsocketInstance(websocketInstance);
+    webSocketInstance = new WebSocketService('/websocket', uuid)
+    userState.setWebsocketInstance(webSocketInstance);
+    const messages = await axios.get("/api/message/loadAll");
+    webSocketInstance.messageLoaded = messages.data.data;
+
 }
-initWebsocketUUID()
+initWebsocket()
 const disconnect = async (arg: string) => {
     let data = new FormData();
     data.append("arg", arg);

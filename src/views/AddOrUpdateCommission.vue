@@ -1,5 +1,5 @@
 <template>
-    <div class="main-container">
+    <div class="add-commission-container">
         <div class="buttons">
             <div id="title">{{ actionType }}委托 </div>
             <el-button type="primary" icon="Upload" circle @click="handleSubmit" style="height: 4vh; width: 4vh;"></el-button>
@@ -45,7 +45,7 @@ import { useUserState } from '../provide';
 import { myElMessage } from '../tool';
 import { useRoute } from 'vue-router';
 import MyQuillEditor from '../components/MyQuillEditor.vue';
-import DOMPurify from 'dompurify';
+
 const formRef = ref();
 const actionType = ref("添加");
 const route = useRoute();
@@ -113,7 +113,6 @@ const update = async () => {
     }
 }
 const handleSubmit = () => {
-    form.value.description = DOMPurify.sanitize(form.value.description);
     formRef.value?.validate(async (valid: any) => {
         if (valid) {
             if (actionType.value == "修改") {
@@ -129,7 +128,7 @@ const handleSubmit = () => {
 </script>
 
 <style scoped>
-.main-container {
+.add-commission-container {
     display: flex;
     flex-direction: column;
     margin: 15px;

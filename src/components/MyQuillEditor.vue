@@ -1,6 +1,6 @@
 <template>
     <QuillEditor ref="quillEditor" :toolbar="toolBar" :modules="modules" style="background-color: white;"
-     @update:content="updateContent" contentType="html"></QuillEditor>
+     @update:content="updateContent" contentType="html" :content="sanitizedContent"></QuillEditor>
 </template>
 <script setup lang="ts">
 import axios from 'axios';
@@ -8,13 +8,20 @@ import BlotFormatter from 'quill-blot-formatter'
 import ImageUploader from 'quill-image-uploader';
 import { intactPath, uploadFile } from '../tool';
 import { Quill } from '@vueup/vue-quill';
-import { onMounted, ref } from 'vue';
-
+import { onMounted, ref, watch } from 'vue';
+import DOMPurify from 'dompurify';
+const sanitizedContent = ref('');
+const props = defineProps<{
+    content: string
+}>();
+watch(() => props.content, (newContent: string) => {
+    sanitizedContent.value = DOMPurify.sanitize(newContent);
+    console.log(sanitizedContent);
+}, { immediate: true });
 var Link = Quill.import('formats/link');
 class FileBlot extends Link {
     static blotName: string;  // 继承Link Blot
     static tagName: string;
-
     static create(value: any) {
         let node = undefined
         if (value && !value.href) {  // 适应原本的Link Blot
@@ -28,15 +35,15 @@ class FileBlot extends Link {
         return node;
     }
 }
-FileBlot.blotName  = 'link';
+FileBlot.blotName = 'link';
 FileBlot.tagName = 'A';
 Quill.register(FileBlot);
 const quillEditor = ref<any>(null);
 const emit = defineEmits(['update:content'])
 const updateContent = (newContent: string) => {
-    
     emit("update:content", newContent);
 }
+
 const myUploadFile = function () {
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
@@ -73,7 +80,7 @@ const initButton = () => {
     if (uploadFileButton) {
         uploadFileButton.innerHTML = svgIcon
     }
-    
+
 }
 onMounted(() => {
     initButton();

@@ -1,10 +1,10 @@
 <template>
-    <div class="the-item" :class="[getClass(item.state), { active: isSel }]" @click="emit('sel', item)">
+    <div class="the-item" :class="[getClass(reply?.state), { active: isSel }]" @click="emit('sel', type == 'reply'? reply: user)">
         <div class="reply-header">
             <AvatarWithInfo :item="user" :avatar-style="{ width: '2vw', height: '2vw' }" />
             <div class="title">
                 <span>{{ user.account }}</span>
-                <span style="color: #79bcff; font-size: 10px;">{{ convertBeijingTime(item.replyTime) }}</span>
+                <span v-if="updateTime" style="color: #79bcff; font-size: 10px;">{{ convertBeijingTime(updateTime) }}</span>
             </div>
             <el-badge v-if="type != 'reply'" :value="1" class="badge" :badge-style="{'font-size':'10px','background-color': '#79bcffae'} " type="primary">
             </el-badge>
@@ -16,19 +16,19 @@
 <script setup lang="ts">
 
 import { convertBeijingTime } from '../tool';
-import { ReplyBody, UserBody } from '../type';
+import { MessageBody, ReplyBody, UserBody } from '../type';
 import AvatarWithInfo from './AvatarWithInfo.vue';
 
 
 
 const props = defineProps<{
-    item: ReplyBody
+    updateTime?: string
+    reply?: ReplyBody
     user: UserBody
-    isOwner: boolean
     isSel: boolean
     type: string
 }>();
-const getClass = (state: number) => {
+const getClass = (state: number | undefined) => {
     if (!(props.type == 'reply')) {
         return 'normal';
     }

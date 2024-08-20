@@ -1,14 +1,27 @@
 <script setup lang="ts">
+import { ElMessage } from 'element-plus';
+import { useUserState } from '../provide';
 import { intactPath } from '../tool';
 import { UserBody } from '../type';
-
-defineProps<{
+import { useRouter } from 'vue-router';
+const userState = useUserState();
+const router = useRouter();
+const props = defineProps<{
     item: UserBody;
     avatarStyle?: Record<string, any>;
 }>()
 
 const jumpToProfile = () => {
 
+}
+const jumpToChat = () => {
+    if(props.item.account == userState.userInfo.account) {
+        ElMessage.warning("不能和自己私信")
+    }else {
+        userState.webSocketInstance.addEmpty(props.item.account)
+        router.push("/chat")
+    }
+    
 }
 </script>
 <template>
@@ -31,7 +44,7 @@ const jumpToProfile = () => {
                         <span >这是一个签名这是一个签名这是一个签名这是一个签名这是一个签名</span>
                     </div>
                     <div class="card-buttons">
-                        <el-button icon = "Message" type="primary" size="small">
+                        <el-button icon = "Message" type="primary" size="small" @click="jumpToChat">
                             私信
                         </el-button>
                         <el-button icon = "Message" type="primary" size="small">

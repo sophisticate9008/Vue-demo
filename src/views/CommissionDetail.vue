@@ -34,7 +34,7 @@
             <div class="problem-main problem-item">
 
                 <el-scrollbar height="80vh">
-                    <QuillView class="description" :content="data?.description" />
+                    <MyQuillEditor v-if="data" class="description" :content="data.description" theme="bubble" :readOnly="true"/>
                 </el-scrollbar>
             </div>
 
@@ -67,8 +67,8 @@
             <div style="border:2px solid #ededed;">
                 <el-scrollbar height="80vh" style="background-color: white; width: 15vw;">
                     <div class="replys">
-                        <ItemSel type="reply" v-for="item in items" :key="item.reply.id" :item="item.reply" :user=item.user
-                         :is-owner="isOwner" @sel="selitem($event)" :isSel="replySel?.id == item.reply.id" />
+                        <ItemSel type="reply" v-for="item in items" :key="item.reply.id" :reply="item.reply" :user=item.user
+                        @sel="selItem($event)" :isSel="replySel?.id == item.reply.id" :update-time="item.reply.replyTime" />
                     </div>
                 </el-scrollbar>
             </div>
@@ -91,11 +91,12 @@ import { ElMessageBox, ElMessage, dayjs } from 'element-plus';
 import { useUserState } from '../provide';
 import { getUserBasicInfo, myElMessage } from '../tool';
 import SwitchHeadBar from '../components/SwitchHeadBar.vue';
-import QuillView from '../components/QuillView.vue';
+
 import ReplyView from '../components/ReplyView.vue';
-import DOMPurify from 'dompurify';
+
 import AvatarWithInfo from '../components/AvatarWithInfo.vue';
 import ItemSel from '../components/ItemSel.vue';
+import MyQuillEditor from '../components/MyQuillEditor.vue';
 
 const userState = useUserState();
 const route = useRoute();
@@ -112,7 +113,7 @@ interface Item {
 }
 const items = ref<Item[]>([]);
 const ownerInfo = ref<UserBody>();
-const selitem = (reply: ReplyBody) => {
+const selItem = (reply: ReplyBody) => {
     replySel.value = reply;
 }
 const menuItems = ref([
@@ -139,7 +140,6 @@ const getItemsByCommissionId = async () => {
         accounts: res1.data.data.map((item: ReplyBody) => item.account)
     })
     items.value = res1.data.data.map((item: ReplyBody, index: number) => {
-        item.content = DOMPurify.sanitize(item.content)
         return {
             user: res2.data.data[index],
             reply: item
