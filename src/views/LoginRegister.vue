@@ -55,7 +55,6 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter, useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import Tool from '../tool/Tool.vue';
 // 状态定义
 const activeTab = ref('login');
 const loginAccount = ref('');
@@ -88,7 +87,10 @@ const handleLogin = async () => {
             window.localStorage.setItem('authToken', response.data.args.jwtToken);
             setTimeout(() => {
                 const redirectPath = route.query.redirect || '/';
-                router.push(redirectPath as string);
+                router.push(redirectPath as string).then(() => {
+                    // 页面跳转完成后刷新页面
+                    window.location.reload();
+                });
             }, 500);
 
         }
@@ -152,6 +154,7 @@ h2 {
     justify-content: center;
     align-items: center;
 }
+
 .tabs button {
     padding: 10px 20px;
     border: none;

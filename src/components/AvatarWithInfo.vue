@@ -19,6 +19,7 @@ const jumpToChat = () => {
         ElMessage.warning("不能和自己私信")
     }else {
         userState.webSocketInstance.addEmpty(props.item.account)
+        
         router.push("/chat")
     }
     

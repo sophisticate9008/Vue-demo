@@ -1,13 +1,15 @@
 import { Client, IMessage } from '@stomp/stompjs';
 import { Observable, Subject } from 'rxjs';
-import { MessageBody } from '../type';
+import { MessageBody, UserBody } from '../type';
+import { reactive, ref, toRef } from 'vue';
 
 export class WebSocketService {
+    private _user: UserBody = null as unknown as UserBody;
     private client: Client;
     private messagesSubject$ = new Subject<any>();
-    private _messageLoaded: Record<string, MessageBody[]> = {};
+    private _messageLoaded = reactive<Record<string, MessageBody[]>>({});
+    private _keys = ref<Set<string>>(new Set<string>());
     constructor(private url: string, private uuid: string) {
-
         this.client = new Client({
             brokerURL: this.url, // WebSocket 端点 URL
             reconnectDelay: 5000,
@@ -27,36 +29,56 @@ export class WebSocketService {
             this.addMessage(messageJson);
         });
     }
+
     addMessage(newMessage: MessageBody) {
-        const key = newMessage.sender;
+        var key: string;
+        if (this.user.account === newMessage.sender) {
+            key = newMessage.receiver;
+        } else {
+            key = newMessage.sender;
+        }
+        
         if (!this._messageLoaded[key]) {
             this._messageLoaded[key] = [];
+            this._keys.value.add(key);
         }
+        
         this._messageLoaded[key].push(newMessage);
-        // this.sortDictionaryByLastMessageTime();
+
+        // 这里可以确保对字典的更新能够触发 Vue 的响应式更新
+        this._messageLoaded = { ...this._messageLoaded };
+        
+    }
+    get keys(): Set<string> {
+        return toRef(this._keys).value;
     }
     addEmpty(key: string) {
-        if(!this._messageLoaded[key]) {
+        if (!this._messageLoaded[key]) {
             this._messageLoaded[key] = [];
+            this._messageLoaded = { ...this._messageLoaded };  // 触发响应式更新
         }
+        this.keys.add(key);
     }
-    // sortDictionaryByLastMessageTime() {
-    //     const sortedEntries = Object.entries(this._messageLoaded)
-    //         .sort(([, messagesA], [, messagesB]) => {
-    //             const lastMessageA = messagesA[messagesA.length - 1];
-    //             const lastMessageB = messagesB[messagesB.length - 1];
-    //             return new Date(lastMessageB.sendTime).getTime() - new Date(lastMessageA.sendTime).getTime();
-    //         });
 
-    //     // 重新构建排序后的字典
-    //     this._messageLoaded = Object.fromEntries(sortedEntries);
-    // }
+    set user(value: UserBody) {
+        this._user = value;
+    }
+
+    get user(): UserBody {
+        return this._user;
+    }
+
     set messageLoaded(value: Record<string, MessageBody[]>) {
-        this._messageLoaded = value;
+        Object.assign(this._messageLoaded, value);
+        this._keys.value = new Set(Object.keys(value));
     }
+
     get messageLoaded(): Record<string, MessageBody[]> {
+        const a = this.keys
         return this._messageLoaded;
+        
     }
+
     get messages$(): Observable<any> {
         return this.messagesSubject$.asObservable();
     }

@@ -16,7 +16,7 @@
 <script setup lang="ts">
 
 import { convertBeijingTime } from '../tool';
-import { MessageBody, ReplyBody, UserBody } from '../type';
+import {  ReplyBody, UserBody } from '../type';
 import AvatarWithInfo from './AvatarWithInfo.vue';
 
 

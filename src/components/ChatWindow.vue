@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { useUserState } from '../provide';
 import { MessageBody, UserBody } from '../type';
 import { intactPath } from '../tool';
@@ -11,7 +11,16 @@ const userSelf = userState.userInfo;
 const props = defineProps<{
     user: UserBody
 }>();
-const messages = ref<MessageBody[]>(userState.webSocketInstance.messageLoaded[props.user.account]);
+var messages = reactive([] as MessageBody[]);
+messages = userState.webSocketInstance.messageLoaded[props.user.account];
+watch(() => props.user, () => {
+    console.log('user changed');
+    messages = userState.webSocketInstance.messageLoaded[props.user.account];
+    form.value.receiver = props.user.account;
+});
+
+
+
 const form = ref({
     sender: userSelf.account,
     receiver: props.user.account,
@@ -33,18 +42,24 @@ const getAvatar = (message: MessageBody) => {
         return intactPath(props.user.avatarPath);
     }
 }
+const sendMessage = () => {
+    userState.webSocketInstance.sendMessage(form.value);
+}
 </script>
 
 <template>
     <div class="chat-window-container">
         <div class="input-container">
             <MyQuillEditor @update:content="form.content = $event" :content="form.content" theme="bubble"></MyQuillEditor>
+            <div class="input-buttons">
+                <el-button type="primary" @click="sendMessage">发送</el-button>
+            </div>
         </div>
         <div class="messages">
             <div v-for="message in messages" :class="[getClass(message), 'message']">
-                <el-avatar :src="getAvatar(message)"> </el-avatar>
+                <el-avatar :src="getAvatar(message)" size="small"> </el-avatar>
                 <div class="message-content">
-                    <MyQuillEditor :content="message.content" theme="bubble" :readOnly="true"></MyQuillEditor>
+                    <MyQuillEditor  :content="message.content" theme="bubble" :readOnly="true"></MyQuillEditor>
                 </div>
             </div>
         </div>
@@ -77,9 +92,17 @@ const getAvatar = (message: MessageBody) => {
 }
 
 .input-container {
+    position: relative;
     box-sizing: border-box;
     border: 1px solid #D1D5DB;
     height: 20vh;
     width: 100%;
+}
+.input-buttons {
+    display: flex;
+    position: absolute;
+    bottom:0;
+    right: 0;
+    margin: 10px;
 }
 </style>

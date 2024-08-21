@@ -46,7 +46,7 @@ const initWebsocket = async () => {
     userState.setWebsocketInstance(webSocketInstance);
     const messages = await axios.get("/api/message/loadAll");
     webSocketInstance.messageLoaded = messages.data.data;
-
+    webSocketInstance.user = userState.userInfo;
 }
 initWebsocket()
 const disconnect = async (arg: string) => {

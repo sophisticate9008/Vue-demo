@@ -16,7 +16,6 @@ const props = defineProps<{
 }>();
 watch(() => props.content, (newContent: string) => {
     sanitizedContent.value = DOMPurify.sanitize(newContent);
-    console.log(sanitizedContent);
 }, { immediate: true });
 var Link = Quill.import('formats/link');
 class FileBlot extends Link {
