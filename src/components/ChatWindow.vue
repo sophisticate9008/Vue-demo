@@ -60,7 +60,7 @@ const sendMessage = () => {
             <div v-for="message in messages" :class="[getClass(message), 'message']">
                 <el-avatar :src="getAvatar(message)" size="small"> </el-avatar>
                 <div class="message-content">
-                    <MyQuillEditor :content="message.content" view></MyQuillEditor>
+                    <MyQuillEditor :content="message.content" read-only></MyQuillEditor>
                 </div>
             </div>
         </div>
@@ -99,7 +99,7 @@ const sendMessage = () => {
     position: relative;
     box-sizing: border-box;
     border: 1px solid #D1D5DB;
-    height: 20vh;
+    height: 25vh;
     width: 100%;
 }
 

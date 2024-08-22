@@ -1,52 +1,127 @@
 <template>
-    <div ref="quillEditor" style="background-color: white;"
-     @update:content="updateContent" contentType="html" :content="sanitizedContent" :readOnly="view"
-     :theme="view ? 'bubble' : 'snow'"></div>
+    <div ref="quillEditor" style="background-color: white;"></div>
+
+    <!-- 预览窗口 -->
+    <el-image ref="hiddenPreview" style="width: 0; height: 0;" :preview-src-list="previewSrcList" :src="previewSrc"
+     class="the-el-image" />
+
+
 </template>
 <script setup lang="ts">
-import axios from 'axios';
 import { intactPath, uploadFile } from '../tool';
 import Quill from 'quill'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 import { onMounted, ref, watch } from 'vue';
 import DOMPurify from 'dompurify';
+import type { Range } from 'quill/core/selection.js';
+import ResizeModule from "@majintd/quill-image-resize";
+import $ from 'jquery';
+Quill.register("modules/resize", ResizeModule);
+const previewSrc = ref('');
+const previewSrcList = ref<string[]>([]);
 const sanitizedContent = ref('');
 const props = defineProps<{
     content: string
-    view?: boolean
+    theme?: string
+    readOnly?: boolean
 }>();
 watch(() => props.content, (newContent: string) => {
     sanitizedContent.value = DOMPurify.sanitize(newContent);
 }, { immediate: true });
 
+var Link = Quill.import('formats/link') as any;
+class FileBlot extends Link {
+    static blotName: string = 'link';  // 继承Link Blot
+    static tagName: string = 'A';
+    static create(value: any) {
+        let node = undefined
+        if (value && !value.href) {  // 适应原本的Link Blot
+            node = super.create(value);
+        }
+        else {  // 自定义Link Blot
+            node = super.create(value.href);
+            node.setAttribute('download', true);  // 左键点击即下载
+            node.innerText = value.innerText;
+        }
+        return node;
+    }
+}
 
-// var Link = Quill.import('formats/link');
-// class FileBlot extends Link {
-//     static blotName: string = 'link';  // 继承Link Blot
-//     static tagName: string = 'A';
-//     static create(value: any) {
-//         let node = undefined
-//         if (value && !value.href) {  // 适应原本的Link Blot
-//             node = super.create(value);
-//         }
-//         else {  // 自定义Link Blot
-//             node = super.create(value.href);
-//             node.setAttribute('download', true);  // 左键点击即下载
-//             node.innerText = value.innerText;
-//         }
-//         return node;
-//     }
-// }
+Quill.register(FileBlot);
 
-// Quill.register(FileBlot);
+const Image = Quill.import('formats/image') as any;
+class CustomImage extends Image {
+    static blotName = 'image';
+    static tagName = 'IMG';
 
-// 注册自定义 Blot
+    static create(value: any) {
+        console.log(value);
+        const node = super.create(value);
+
+        if (value && value.src) {
+            node.setAttribute('src', value.src);
+            node.style.width = '200px'; // 设置初始宽度
+            node.style.height = 'auto'; // 高度自适应
+            node.classList.add('ql-image');
+            node.style.cursor = 'pointer';
+        }
+        return node;
+    }
+
+    static formats(node: any) {
+        return {
+            src: node.getAttribute('src')
+        };
+    }
+
+    format(name: string, value: any) {
+        if (name === 'src') {
+            this.domNode.setAttribute('src', value);
+        } else {
+            super.format(name, value);
+        }
+    }
+}
+
+Quill.register(CustomImage, true);
+
+
+const Uploader = Quill.import('modules/uploader') as any;
+class CustomUploader extends Uploader {
+    upload(range: Range, files: FileList | File[]) {
+        const file = files[0];
+        if (file) {
+            const mimeType = file.type;
+            uploadFile(file).then(res => {
+                const fileUrl = intactPath(res);
+
+                if (mimeType.startsWith('image/')) {
+
+                    // 如果是图片，插入为 image
+                    this.quill.insertEmbed(range.index, 'image', { src: fileUrl });
+                } else {
+                    // 如果是其他文件，插入为 link
+                    this.quill.insertText(range.index, file.name, {
+                        link: fileUrl
+                    });
+                }
+
+                this.quill.setSelection(range.index + (mimeType.startsWith('image/') ? 1 : file.name.length));
+            }).catch(error => {
+                console.error('File upload failed:', error);
+            });
+        }
+    }
+}
+
+// 注册自定义的 Uploader 模块
+Quill.register('modules/uploader', CustomUploader);
+
 
 
 const quillEditor = ref<any>(null);
 let quill: Quill | null = null;
-
 const emit = defineEmits(['update:content'])
 const updateContent = (newContent: string) => {
     emit("update:content", newContent);
@@ -58,20 +133,18 @@ const myUploadFile = function () {
     input.click();
     input.onchange = async () => {
         const file = input.files ? input.files[0] : null;
-        const editor = quillEditor.value.getQuill();
-        console.log(editor);
         if (file) {
             try {
                 const fileUrl = await uploadFile(file);
-                const range = editor.getSelection(true);
+                const range = quill?.getSelection(true);
                 console.log(fileUrl);
                 console.log(range);
                 if (range) {
-                    editor.insertEmbed(range.index, 'link', {
+                    quill?.insertEmbed(range.index, 'link', {
                         href: intactPath(fileUrl) + '&fileName=' + file.name,
                         innerText: file.name
                     }, 'api');
-                    editor.setSelection(range.index + range.length + file.name.length + 1);
+                    quill?.setSelection(range.index + range.length + file.name.length + 1);
                 }
             } catch (error) {
                 console.error('File upload failed:', error);
@@ -82,8 +155,12 @@ const myUploadFile = function () {
 const initEditor = () => {
     if (quillEditor.value) {
         quill = new Quill(quillEditor.value, {
-            theme: props.view ? 'bubble' : 'snow',
+            theme: props.theme ? props.theme : (props.readOnly ? 'bubble' : 'snow'),
+            readOnly: props.readOnly,
             modules: {
+                resize: props.readOnly ? null : {
+
+                },
                 toolbar: {
                     container: [
                         ['bold', 'italic', 'underline', 'strike'],
@@ -101,22 +178,6 @@ const initEditor = () => {
                         'upload-file': myUploadFile
                     }
                 },
-                imageUploader: {
-                    upload: (file: File) => {
-                        return new Promise((resolve, reject) => {
-                            const formData = new FormData();
-                            formData.append("mf", file);
-                            axios.post('/api/file/uploadFile', formData)
-                                .then(res => {
-                                    resolve(intactPath(res.data.path));
-                                })
-                                .catch(err => {
-                                    reject("Upload failed");
-                                    console.error("Error:", err);
-                                });
-                        });
-                    }
-                }
             }
         });
 
@@ -125,13 +186,56 @@ const initEditor = () => {
         // Listen to changes and update content
         quill.on('text-change', () => {
             const content = quill?.root.innerHTML;
-            updateContent(content?content:'');
+            updateContent(content ? content : '');
         });
     }
 }
+const initButton = () => {
+    const uploadFileButton = document.querySelector('.ql-upload-file');
+    const svgIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+        <path fill="currentColor" d="M832 384H576V128H192v768h640zm-26.496-64L640 154.496V320zM160 64h480l256 256v608a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32m320 512V448h64v128h128v64H544v128h-64V640H352v-64z"></path>
+        </svg>`;
+    if (uploadFileButton) {
+        uploadFileButton.innerHTML = svgIcon
+    }
+
+}
 onMounted(() => {
     initEditor();
+    initButton();
+
+    $(document).on('dblclick', '.ql-image', function () {
+        const src = $(this).attr('src');
+        if (src) {
+            previewSrc.value = src;
+            previewSrcList.value = [src];
+
+            // 通过 JavaScript 模拟点击 el-image
+            setTimeout(() => {
+                const elImagePreview = $('.el-image__preview')[0] as HTMLElement;
+                console.log(elImagePreview);
+                if (elImagePreview) {
+                    $(elImagePreview).click();
+                }
+            }, 200);
+
+        }
+    });
 });
 
+
 </script>
-<style scoped></style>
+<style scoped>
+.image-preview-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-preview {
+    
+    max-width: 90vw;
+    max-height: 90vh;
+}
+</style>
