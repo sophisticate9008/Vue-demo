@@ -34,7 +34,7 @@
             <div class="problem-main problem-item">
 
                 <el-scrollbar height="80vh">
-                    <MyQuillEditor v-if="data" class="description" :content="data.description" theme="bubble" :readOnly="true"/>
+                    <MyQuillEditor v-if="data" class="description" :content="data.description" view/>
                 </el-scrollbar>
             </div>
 

@@ -50,7 +50,8 @@ const sendMessage = () => {
 <template>
     <div class="chat-window-container">
         <div class="input-container">
-            <MyQuillEditor @update:content="form.content = $event" :content="form.content" theme="bubble"></MyQuillEditor>
+            <MyQuillEditor @update:content="form.content = $event" :content="form.content" theme="bubble">
+            </MyQuillEditor>
             <div class="input-buttons">
                 <el-button type="primary" @click="sendMessage">发送</el-button>
             </div>
@@ -59,11 +60,11 @@ const sendMessage = () => {
             <div v-for="message in messages" :class="[getClass(message), 'message']">
                 <el-avatar :src="getAvatar(message)" size="small"> </el-avatar>
                 <div class="message-content">
-                    <MyQuillEditor  :content="message.content" theme="bubble" :readOnly="true"></MyQuillEditor>
+                    <MyQuillEditor :content="message.content" view></MyQuillEditor>
                 </div>
             </div>
         </div>
-       
+
 
     </div>
 </template>
@@ -75,11 +76,14 @@ const sendMessage = () => {
     display: flex;
     flex-direction: column-reverse
 }
+
 .messages {
     width: 100%;
     flex-grow: 1;
 }
+
 .message {
+    margin: 10px;
     display: flex;
 }
 
@@ -98,10 +102,11 @@ const sendMessage = () => {
     height: 20vh;
     width: 100%;
 }
+
 .input-buttons {
     display: flex;
     position: absolute;
-    bottom:0;
+    bottom: 0;
     right: 0;
     margin: 10px;
 }
