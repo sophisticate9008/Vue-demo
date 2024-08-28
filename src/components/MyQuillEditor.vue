@@ -1,9 +1,12 @@
 <template>
-    <div ref="quillEditor" style="background-color: white;"></div>
+    <div class="my-quill-container">
+        <div ref="quillEditor"></div>
 
-    <!-- 预览窗口 -->
-    <el-image ref="hiddenPreview" style="width: 0; height: 0;" :preview-src-list="previewSrcList" :src="previewSrc"
-     class="the-el-image" />
+        <!-- 预览窗口 -->
+        <el-image ref="hiddenPreview" style="width: 0; height: 0;" :preview-src-list="previewSrcList" :src="previewSrc"
+         class="the-el-image" />
+    </div>
+
 
 
 </template>
@@ -17,7 +20,11 @@ import DOMPurify from 'dompurify';
 import type { Range } from 'quill/core/selection.js';
 import ResizeModule from "@majintd/quill-image-resize";
 import $ from 'jquery';
+
+import TableUp from 'quill-table-up';
+import 'quill-table-up/index.css';
 Quill.register("modules/resize", ResizeModule);
+Quill.register({ 'modules/tableUp': TableUp }, true);
 const previewSrc = ref('');
 const previewSrcList = ref<string[]>([]);
 const sanitizedContent = ref('');
@@ -158,6 +165,7 @@ const initEditor = () => {
             theme: props.theme ? props.theme : (props.readOnly ? 'bubble' : 'snow'),
             readOnly: props.readOnly,
             modules: {
+                tableUp: props.readOnly || props.theme == 'bubble'? null: {},
                 resize: props.readOnly ? null : {
 
                 },
@@ -172,6 +180,7 @@ const initEditor = () => {
                         [{ 'color': [] }, { 'background': [] }],
                         [{ 'align': [] }],
                         ['link', 'image', 'video'],
+                        [{ 'table': [] }],
                         [{ 'upload-file': 'Upload File' }]
                     ],
                     handlers: {
@@ -232,9 +241,16 @@ onMounted(() => {
     justify-content: center;
     align-items: center;
 }
-
+.my-quill-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.my-quill-container .ql-container {
+    flex-grow: 1;
+}
 .image-preview {
-    
+
     max-width: 90vw;
     max-height: 90vh;
 }

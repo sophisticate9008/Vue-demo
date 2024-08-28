@@ -13,7 +13,7 @@ defineProps<{
 
 <template>
     <div class="view-container">
-        <MyQuillEditor v-if="isOwner" :content="item.content" theme="bubble" :readOnly="true"></MyQuillEditor>
+        <MyQuillEditor v-if="isOwner" :content="item.content" readOnly></MyQuillEditor>
         <MyQuillEditor @update:content="item.content = $event" :content="item.content" v-else></MyQuillEditor>
     </div>
 </template>

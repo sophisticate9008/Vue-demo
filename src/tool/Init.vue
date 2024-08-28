@@ -50,6 +50,9 @@ const initWebsocket = async () => {
 }
 initWebsocket()
 const disconnect = async (arg: string) => {
+    if(!isLogin.value) {
+        return;
+    }
     let data = new FormData();
     data.append("arg", arg);
     navigator.sendBeacon('/api/session/stop', data)
@@ -59,5 +62,7 @@ const disconnect = async (arg: string) => {
 window.addEventListener('beforeunload', () => {
     disconnect("beforeunload");
 });
+
+
 disconnect("load");
 </script>

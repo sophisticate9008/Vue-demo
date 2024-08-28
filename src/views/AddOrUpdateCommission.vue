@@ -161,7 +161,7 @@ const handleSubmit = () => {
 }
 
 .editor {
-    height: 74vh;
+    height: calc(74vh + 42px);
     flex-grow: 1;
     background-color: white;
     box-sizing: border-box;

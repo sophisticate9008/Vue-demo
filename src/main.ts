@@ -16,3 +16,12 @@ app.use(ElementPlus)
 app.use(router)
 
 app.mount('#app')
+const originalWarn = console.warn;
+
+// 重写 console.warn 方法
+console.warn = function (message, ...args) {
+    if (typeof message === 'string' && message.includes('quill')) {
+        return; // 过滤掉包含 "Quill" 的警告信息
+    }
+    originalWarn.apply(console, [message, ...args]); // 其他警告继续显示
+};

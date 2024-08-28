@@ -35,7 +35,7 @@ const logout = () => {
             <div id="headBar">
                 <div class="headBar-item">
                     <el-dropdown>
-                        <el-avatar :size="32" class="el-dropdown-link" :src="intactPath(userState.userInfo.avatarPath)">
+                        <el-avatar :size="25" class="el-dropdown-link" :src="intactPath(userState.userInfo.avatarPath)">
 
                         </el-avatar>
                         <template #dropdown>
@@ -46,6 +46,15 @@ const logout = () => {
                             </el-dropdown-menu>
                         </template>
                     </el-dropdown>
+
+                </div>
+                <div class="headBar-item" >
+                    <el-badge :value="12" class="app-badge-item" :offset="[-5, 20]">
+                        <el-icon size="25">
+                            <ChatDotRound />
+                        </el-icon>
+                    </el-badge>
+
                 </div>
             </div>
             <div class="router-container">
@@ -64,6 +73,11 @@ const logout = () => {
 </template>
 
 <style scoped>
+::v-deep .el-badge__content {
+    background-color: #409eff;
+    font-size: 10px;
+
+}
 :deep(.el-tooltip__trigger:focus-visible) {
     outline: unset;
 }
