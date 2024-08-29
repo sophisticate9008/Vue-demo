@@ -29,15 +29,8 @@ const judgeLogin = async () => {
 }
 await judgeLogin();
 
-if (isLogin.value) {
-    await fetchUserInfo();
-} else {
-    if (window.localStorage.getItem('authToken')) {
-        window.localStorage.removeItem('authToken');
-        ElMessage.error('登录状态失效,请重新登录');
-    }
 
-}
+
 var webSocketInstance: WebSocketService;
 const initWebsocket = async () => {
     const uuid = crypto.randomUUID();
@@ -48,7 +41,17 @@ const initWebsocket = async () => {
     webSocketInstance.messageLoaded = messages.data.data;
     webSocketInstance.user = userState.userInfo;
 }
-initWebsocket()
+if (isLogin.value) {
+    await fetchUserInfo();
+    initWebsocket()
+} else {
+    if (window.localStorage.getItem('authToken')) {
+        window.localStorage.removeItem('authToken');
+        ElMessage.error('登录状态失效,请重新登录');
+    }
+
+}
+
 const disconnect = async (arg: string) => {
     if(!isLogin.value) {
         return;
@@ -65,4 +68,11 @@ window.addEventListener('beforeunload', () => {
 
 
 disconnect("load");
+
+defineExpose({
+    isLogin
+})
 </script>
+<template>
+
+</template>

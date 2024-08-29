@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import { ElMessage } from "element-plus";
-import { UserBody } from "../type";
+import { MessageBody, UserBody } from "../type";
 
 /**
  * 将数据库中存储的北京时间 LocalDateTime 转换为指定格式的字符串
@@ -20,16 +20,14 @@ export function convertBeijingTime(localDateTime: string): string {
     const seconds = date.getSeconds().toString().padStart(2, '0');
 
     // 拼接成指定格式的字符串
-    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-
-    return formattedDate;
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 /**
  * 快捷显示服务器返回消息
  * @param res - 返回体
  * @returns void
  */
-export function myElMessage(res: AxiosResponse) : void {
+export function myElMessage(res: AxiosResponse): void {
     ElMessage({
         message: res.data.msg,
         type: res.data.code === 200 ? 'success' : 'error'
@@ -42,7 +40,7 @@ export function myElMessage(res: AxiosResponse) : void {
  * @param 文件
  * @returns 路径
  */
-export async function uploadFile(file: File) : Promise<string> {
+export async function uploadFile(file: File): Promise<string> {
     const formData = new FormData()
     formData.append('mf', file)
     const res = await axios.post('/api/file/uploadFile', formData)
@@ -54,7 +52,7 @@ export async function uploadFile(file: File) : Promise<string> {
  * @param 路径
  * @returns 完整路径
  */
-export function intactPath(path: string) : string{
+export function intactPath(path: string): string {
     return "/api/file/showFileByPath?path=" + path;
 }
 
@@ -78,17 +76,50 @@ export async function getUserBasicInfo(accounts: string[]): Promise<UserBody[]>;
  * @returns 单个用户的基本信息或用户基本信息数组
  */
 export async function getUserBasicInfo(accountOrAccounts: string | string[]): Promise<UserBody | UserBody[]> {
-  const accounts = Array.isArray(accountOrAccounts) ? accountOrAccounts : [accountOrAccounts];
-  const res = await axios.post('/api/user/basicInfos', { accounts });
+    const accounts = Array.isArray(accountOrAccounts) ? accountOrAccounts : [accountOrAccounts];
+    const res = await axios.post('/api/user/basicInfos', { accounts });
 
-  const data = res.data.data as UserBody[];
+    const data = res.data.data as UserBody[];
 
-  // 如果传入的是单个账号，则返回第一个用户信息
-  if (!Array.isArray(accountOrAccounts)) {
-    return data[0];
-  }
+    // 如果传入的是单个账号，则返回第一个用户信息
+    if (!Array.isArray(accountOrAccounts)) {
+        return data[0];
+    }
 
-  // 否则返回用户信息数组
-  return data;
+    // 否则返回用户信息数组
+    return data;
 }
+/**
+ * 获取未读信息 (未读条数,最久未读)
+ * @param 消息列表[], receiver
+ * @returns "{未读条数,最久未读}"
+ */
+export function computeUnreadInfo(messages: MessageBody[], receiver: string): 
+{ count: number | undefined, messageOldest: MessageBody | null, messageNewest: MessageBody | null } {
+    let count = 0;
+    let messageOldest: MessageBody | null = null;
+    let messageNewest: MessageBody | null = null;
+    // 从后向前遍历
+    for (let i = messages.length - 1; i >= 0; i--) {
+        const message = messages[i];
+        if (message.receiver == receiver) {
 
+            if (message.haveRead) {
+                break; // 找到第一个已读消息，停止遍历
+            }
+            if(messageOldest == null) {
+                messageNewest = message;
+            }
+            
+            count++; // 统计未读消息数量
+            messageOldest = message; // 更新最近的未读消息            
+        }
+
+    }
+
+    return {
+        count: count > 0 ? count : undefined,
+        messageOldest,
+        messageNewest,
+    };
+}

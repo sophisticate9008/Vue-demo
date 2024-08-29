@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useUserState } from '../provide';
-import { UserBody } from '../type';
+import { MessageBody, UserBody } from '../type';
 import { getUserBasicInfo } from '../tool';
 import ItemSel from '../components/ItemSel.vue';
 import ChatWindow from '../components/ChatWindow.vue';
+import { computeUnreadInfo } from '../tool';
 const userState = useUserState();
 
 var message = userState.webSocketInstance.messageLoaded;
@@ -22,7 +23,7 @@ const updateAccountsAndFetch = async () => {
             requestedKeys.add(key);
         }
 
-    } 
+    }
     if (accounts.length > 0) {
         const newInfo = await getUserBasicInfo(accounts);
         userBasicInfo.value.push(...newInfo)
@@ -51,6 +52,17 @@ setTimeout(() => {
 watch(messageKeys, () => {
     updateAccountsAndFetch();
 });
+const badgeInfo = computed(() => {
+    const nums = {} as Record<string, { count: number | undefined, messageOldest: MessageBody | null, messageNewest: MessageBody | null }>;
+    if (userBasicInfo.value) {
+        userBasicInfo.value.forEach((item: UserBody) => {
+
+            nums[item.account] = computeUnreadInfo(message[item.account], userState.userInfo.account);
+
+        });
+    }
+    return nums;
+});
 
 </script>
 <template>
@@ -60,17 +72,17 @@ watch(messageKeys, () => {
                 <div class="chats">
                     <ItemSel type="chat" v-for="(item, index) in userBasicInfo" :key="index" :user="item"
                      @sel="selItem($event)" :updateTime="getLastestTime(item.account)"
-                     :is-sel="item.account == userSel?.account" />
+                     :badge-num="badgeInfo[item.account].count" :is-sel="item.account == userSel?.account" />
                 </div>
             </el-scrollbar>
         </div>
         <div class="chat-window">
-            <ChatWindow v-if="userSel" :user="userSel"></ChatWindow>
+            <ChatWindow v-if="userSel" :user="userSel" :key="userSel.account"
+             :oldest-unread-msg="badgeInfo[userSel.account].messageOldest"
+             :newest-unread-msg="badgeInfo[userSel.account].messageNewest"
+             :unread-num="badgeInfo[userSel.account].count"></ChatWindow>
         </div>
     </div>
-
-
-
 </template>
 <style scoped>
 .chat-container {

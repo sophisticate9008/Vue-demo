@@ -6,7 +6,7 @@
                 <span>{{ user.account }}</span>
                 <span v-if="updateTime" style="color: #79bcff; font-size: 10px;">{{ convertBeijingTime(updateTime) }}</span>
             </div>
-            <el-badge v-if="type != 'reply'" :value="1" class="badge" :badge-style="{'font-size':'10px','background-color': '#79bcffae'} " type="primary">
+            <el-badge v-if="type != 'reply'" :value="badgeNum" class="badge" :badge-style="{'font-size':'10px','background-color': '#79bcffae'} " type="primary">
             </el-badge>
 
         </div>
@@ -20,13 +20,13 @@ import {  ReplyBody, UserBody } from '../type';
 import AvatarWithInfo from './AvatarWithInfo.vue';
 
 
-
 const props = defineProps<{
     updateTime?: string
     reply?: ReplyBody
     user: UserBody
     isSel: boolean
     type: string
+    badgeNum? : number
 }>();
 const getClass = (state: number | undefined) => {
     if (!(props.type == 'reply')) {

@@ -5,11 +5,15 @@ import { createUserState } from './provide';
 import { useRouter } from 'vue-router';
 
 import axios from 'axios';
-import { intactPath } from './tool';
-
+import { computeUnreadInfo, intactPath } from './tool';
+import { computed, ref } from 'vue';
+import { MessageBody } from './type';
+import { isEqual } from 'lodash';
 const router = useRouter();
 const userState = createUserState();
 
+
+const initState = ref();
 const changeSel = (url: string) => {
     router.push(url);
 };
@@ -24,11 +28,27 @@ const logout = () => {
     axios.post('/api/login/logout');
     router.push('/');
 };
+const totalUnreadInfo = computed(() => {
+    const messages = userState.webSocketInstance?.messageLoaded
+    let totalCount = 0;
+    if (messages) {
+        for (const theMessages of Object.values(messages)) {
+            const { count } = computeUnreadInfo(theMessages as MessageBody[], userState.userInfo.account);
+            if (count) {
+                totalCount += count;
+            }
+        }
+    }
+
+
+    return totalCount > 0 ? totalCount : undefined;
+});
+
 </script>
 
 <template>
     <div id="main">
-        <Init></Init>
+        <Init ref="initState"></Init>
         <SideBar :sidebarItems="sidebarItems" title="委托系统"></SideBar>
 
         <div id="main-window">
@@ -48,8 +68,8 @@ const logout = () => {
                     </el-dropdown>
 
                 </div>
-                <div class="headBar-item" >
-                    <el-badge :value="12" class="app-badge-item" :offset="[-5, 20]">
+                <div class="headBar-item">
+                    <el-badge v-if="!isEqual(userState.userInfo, {})" :value="totalUnreadInfo" class="app-badge-item" :offset="[-5, 20]">
                         <el-icon size="25">
                             <ChatDotRound />
                         </el-icon>
@@ -78,6 +98,7 @@ const logout = () => {
     font-size: 10px;
 
 }
+
 :deep(.el-tooltip__trigger:focus-visible) {
     outline: unset;
 }

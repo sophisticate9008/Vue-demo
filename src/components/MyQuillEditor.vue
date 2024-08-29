@@ -144,8 +144,6 @@ const myUploadFile = function () {
             try {
                 const fileUrl = await uploadFile(file);
                 const range = quill?.getSelection(true);
-                console.log(fileUrl);
-                console.log(range);
                 if (range) {
                     quill?.insertEmbed(range.index, 'link', {
                         href: intactPath(fileUrl) + '&fileName=' + file.name,
@@ -199,6 +197,11 @@ const initEditor = () => {
         });
     }
 }
+const clearContent = () => {
+    if(quill) {
+        quill.setText('');
+    }
+}
 const initButton = () => {
     const uploadFileButton = document.querySelector('.ql-upload-file');
     const svgIcon = `
@@ -232,7 +235,9 @@ onMounted(() => {
         }
     });
 });
-
+defineExpose({
+    clearContent
+})
 
 </script>
 <style scoped>
