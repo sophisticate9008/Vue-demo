@@ -7,8 +7,8 @@ export class WebSocketService {
     private _user: UserBody = null as unknown as UserBody;
     private client: Client;
     private messagesSubject$ = new Subject<any>();
-    private _messageLoaded = reactive<Record<string, MessageBody[]>>({});
-    private _keys = ref<Set<string>>(new Set<string>());
+    private _messageLoaded = reactive<Record<number, MessageBody[]>>({});
+    private _keys = ref<Set<number>>(new Set<number>());
     constructor(private url: string, private uuid: string) {
         this.client = new Client({
             brokerURL: this.url, // WebSocket 端点 URL
@@ -31,28 +31,28 @@ export class WebSocketService {
     }
 
     addMessage(newMessage: MessageBody) {
-        var key: string;
-        if (this.user.account === newMessage.sender) {
-            key = newMessage.receiver;
+        let key: number;
+        if (this.user.id === newMessage.senderId) {
+            key = newMessage.receiverId;
         } else {
-            key = newMessage.sender;
+            key = newMessage.senderId;
         }
-        
+
         if (!this._messageLoaded[key]) {
             this._messageLoaded[key] = [];
             this._keys.value.add(key);
         }
-        
+
         this._messageLoaded[key].push(newMessage);
 
         // 这里可以确保对字典的更新能够触发 Vue 的响应式更新
         this._messageLoaded = { ...this._messageLoaded };
-        
+
     }
-    get keys(): Set<string> {
+    get keys(): Set<number> {
         return toRef(this._keys).value;
     }
-    addEmpty(key: string) {
+    addEmpty(key: number) {
         if (!this._messageLoaded[key]) {
             this._messageLoaded[key] = [];
             this._messageLoaded = { ...this._messageLoaded };  // 触发响应式更新
@@ -68,15 +68,15 @@ export class WebSocketService {
         return this._user;
     }
 
-    set messageLoaded(value: Record<string, MessageBody[]>) {
+    set messageLoaded(value: Record<number, MessageBody[]>) {
         Object.assign(this._messageLoaded, value);
-        this._keys.value = new Set(Object.keys(value));
+        // 假设 value 是对象且其键可以转换为数字
+        this._keys.value = new Set(Object.keys(value).map(key => Number(key)));
     }
 
-    get messageLoaded(): Record<string, MessageBody[]> {
-        const a = this.keys
+    get messageLoaded(): Record<number, MessageBody[]> {
         return this._messageLoaded;
-        
+
     }
 
     get messages$(): Observable<any> {

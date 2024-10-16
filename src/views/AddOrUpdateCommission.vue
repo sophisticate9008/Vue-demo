@@ -18,19 +18,18 @@
                     <el-form-item label="描述" prop="description" style="display: none;">
                         <el-input v-model="form.description"></el-input>
                     </el-form-item>
-                    <el-form-item label="开始" prop="beginTime">
-                        <el-date-picker v-model="form.beginTime" type="datetime" placeholder="选择日期和时间"></el-date-picker>
-                    </el-form-item>
-                    <el-form-item label="结束" prop="endTime">
-                        <el-date-picker v-model="form.endTime" type="datetime" placeholder="选择日期和时间"></el-date-picker>
-                    </el-form-item>
                     <el-form-item label="金额" prop="money">
                         <el-input v-model="form.money" type="number"></el-input>
                     </el-form-item>
                     <el-form-item label="数量" prop="num">
                         <el-input v-model="form.num" type="number"></el-input>
                     </el-form-item>
-
+                    <el-form-item label="开始" prop="beginTime">
+                        <el-date-picker v-model="form.beginTime" type="datetime" placeholder="选择日期和时间" value-format="YYYY-MM-DD[T]HH:mm:ss"></el-date-picker>
+                    </el-form-item>
+                    <el-form-item label="结束" prop="endTime">
+                        <el-date-picker v-model="form.endTime" type="datetime" placeholder="选择日期和时间" value-format="YYYY-MM-DD[T]HH:mm:ss"></el-date-picker>
+                    </el-form-item>
                 </el-form>
             </div>
         </div>
@@ -59,6 +58,7 @@ watch(route, () => {
 })
 
 
+
 const getById = async () => {
     try {
         const res = await axios.get('/api/commission/getById?id=' + commissionId.value);
@@ -74,7 +74,7 @@ if (actionType.value == "修改") {
 }
 const userState = useUserState();
 const form = ref({
-    account: userState.userInfo.account,
+    userId: userState.userInfo.id,
     name: '',
     description: '',
     beginTime: '',
@@ -84,7 +84,7 @@ const form = ref({
 });
 
 const rules = ref({
-    account: [{ required: true, message: '请输入账号', trigger: 'blur' }],
+    userId: [{ required: true, message: '请输入账号', trigger: 'blur' }],
     name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
     description: [{ required: true, message: '请输入描述', trigger: 'blur' }],
     beginTime: [{ required: true, message: '请选择开始时间', trigger: 'change' }],
@@ -113,6 +113,7 @@ const update = async () => {
     }
 }
 const handleSubmit = () => {
+    form.value.userId = userState.userInfo.id;
     formRef.value?.validate(async (valid: any) => {
         if (valid) {
             if (actionType.value == "修改") {

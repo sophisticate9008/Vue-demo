@@ -58,31 +58,31 @@ export function intactPath(path: string): string {
 
 /**
  * 获取用户基本信息
- * @param account - 单个用户账号
+ * @param userId - 单个用户账号
  * @returns 单个用户的基本信息
  */
-export async function getUserBasicInfo(account: string): Promise<UserBody>;
+export async function getUserBasicInfo(userId: number): Promise<UserBody>;
 
 /**
  * 获取用户基本信息
- * @param accounts - 用户账号列表
+ * @param userIds - 用户账号列表
  * @returns 用户基本信息数组
  */
-export async function getUserBasicInfo(accounts: string[]): Promise<UserBody[]>;
+export async function getUserBasicInfo(userIds: number[]): Promise<UserBody[]>;
 
 /**
  * 获取用户基本信息
- * @param accountOrAccounts - 单个用户账号或用户账号列表
+ * @param userIdOrUserIds - 单个用户账号或用户账号列表
  * @returns 单个用户的基本信息或用户基本信息数组
  */
-export async function getUserBasicInfo(accountOrAccounts: string | string[]): Promise<UserBody | UserBody[]> {
-    const accounts = Array.isArray(accountOrAccounts) ? accountOrAccounts : [accountOrAccounts];
-    const res = await axios.post('/api/user/basicInfos', { accounts });
+export async function getUserBasicInfo(userIdOrUserIds: number | number[]): Promise<UserBody | UserBody[]> {
+    const userIds = Array.isArray(userIdOrUserIds) ? userIdOrUserIds : [userIdOrUserIds];
+    const res = await axios.post('/api/user/basicInfos', { ids: userIds });
 
     const data = res.data.data as UserBody[];
 
     // 如果传入的是单个账号，则返回第一个用户信息
-    if (!Array.isArray(accountOrAccounts)) {
+    if (!Array.isArray(userIdOrUserIds)) {
         return data[0];
     }
 
@@ -91,10 +91,10 @@ export async function getUserBasicInfo(accountOrAccounts: string | string[]): Pr
 }
 /**
  * 获取未读信息 (未读条数,最久未读)
- * @param 消息列表[], receiver
+ * @param 消息列表[], receiverId
  * @returns "{未读条数,最久未读}"
  */
-export function computeUnreadInfo(messages: MessageBody[], receiver: string): 
+export function computeUnreadInfo(messages: MessageBody[], receiverId: number): 
 { count: number | undefined, messageOldest: MessageBody | null, messageNewest: MessageBody | null } {
     let count = 0;
     let messageOldest: MessageBody | null = null;
@@ -102,7 +102,7 @@ export function computeUnreadInfo(messages: MessageBody[], receiver: string):
     // 从后向前遍历
     for (let i = messages.length - 1; i >= 0; i--) {
         const message = messages[i];
-        if (message.receiver == receiver) {
+        if (message.receiverId == receiverId) {
 
             if (message.haveRead) {
                 break; // 找到第一个已读消息，停止遍历

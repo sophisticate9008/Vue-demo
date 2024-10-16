@@ -29,7 +29,7 @@ const loadCount = 10;
 const scrollerRef = ref<InstanceType<typeof ElScrollbar>>();
 const innerRef = ref<HTMLDivElement>();
 var messages = reactive([] as MessageBody[]);
-messages = userState.webSocketInstance.messageLoaded[props.user.account];
+messages = userState.webSocketInstance.messageLoaded[props.user.id];
 const scrollerValue = ref<{
     scrollTop: number;
     scrollLeft: number;
@@ -39,35 +39,36 @@ onUnmounted(() => {
 })
 
 const isBottom = computed(() => {
-    if(innerRef.value) {
+    if (innerRef.value) {
         return scrollerValue.value.scrollTop < innerRef.value!.clientHeight - 600;
-    }else {
+    } else {
         return false;
     }
-    
+
 })
 watch(messages, () => {
 
-    if(scrollerValue.value.scrollTop > innerRef.value!.clientHeight - 600) {
+    if (scrollerValue.value.scrollTop > innerRef.value!.clientHeight - 600) {
         scrollToEnd();
     }
 })
-const form = ref({
-    sender: userSelf.account,
-    receiver: props.user.account,
+const form = ref<MessageBody>({
+    id: 0, // 初始化 id，假设为 0 或其他默认值
     content: '',
+    senderId: userSelf.id, // 假设 userSelf 有一个 id 属性
+    receiverId: props.user.id, // 假设 props.user 有一个 id 属性
     sendTime: new Date().toISOString(),
     haveRead: false
 });
 const getClass = (message: MessageBody) => {
-    if (message.sender == userSelf.account) {
+    if (message.senderId == userSelf.id) {
         return 'message-right';
     } else {
         return 'message-left';
     }
 }
 const getAvatar = (message: MessageBody) => {
-    if (message.sender == userSelf.account) {
+    if (message.senderId == userSelf.id) {
         return intactPath(userSelf.avatarPath);
     } else {
         return intactPath(props.user.avatarPath);
@@ -100,7 +101,7 @@ const recordScroll = (res: { scrollLeft: number, scrollTop: number }) => {
     }
 }
 const changeObserve = async () => {
-    await axios.get("api/message/changeObserve?theObserved=" + props.user.account)
+    await axios.get("api/message/changeObserve?theObserved=" + props.user.id)
 }
 const scrollToEnd = () => {
     setTimeout(() => {
@@ -115,7 +116,7 @@ const scrollToUnread = () => {
     if (localProps.oldestUnreadMsg) {
         const targetId = `message${localProps.oldestUnreadMsg.id}`;
         const targetElement = document.getElementById(targetId);
-        
+
         if (targetElement && scrollerRef.value) {
             const offsetTop = targetElement.offsetTop;
             scrollerRef.value.setScrollTop(offsetTop);
@@ -161,15 +162,17 @@ onMounted(() => {
             </div>
         </div>
         <div class="messages">
-            <div class="scroll-button" @click="scrollToUnread" v-if="!isScrollToUnread && localProps.unreadNum" style="top:1vh">
+            <div class="scroll-button" @click="scrollToUnread" v-if="!isScrollToUnread && localProps.unreadNum"
+             style="top:1vh">
                 ^{{ localProps.unreadNum }}未读消息
             </div>
-            <div class="scroll-button" @click="scrollToEnd" v-if="isBottom" style="bottom:1vh"> 
+            <div class="scroll-button" @click="scrollToEnd" v-if="isBottom" style="bottom:1vh">
                 回到底部
             </div>
             <el-scrollbar ref="scrollerRef" height="60vh" @scroll="recordScroll">
                 <div ref="innerRef" class="scroll-inner">
-                    <div v-for="message in messages" :key="message.id" :class="[getClass(message), 'message']" :id="'message'+ message.id">
+                    <div v-for="message in messages" :key="message.id" :class="[getClass(message), 'message']"
+                     :id="'message' + message.id">
                         <el-avatar :src="getAvatar(message)" size="small"> </el-avatar>
                         <div class="message-content">
                             <MyQuillEditor :content="message.content" read-only></MyQuillEditor>
@@ -183,13 +186,15 @@ onMounted(() => {
 </template>
 
 <style scoped>
-
 @keyframes highlight-animation {
     0% {
-        background-color: #b3d4fc; /* 浅蓝色 */
+        background-color: #b3d4fc;
+        /* 浅蓝色 */
     }
+
     100% {
-        background-color: transparent; /* 渐变为透明 */
+        background-color: transparent;
+        /* 渐变为透明 */
     }
 }
 
@@ -197,19 +202,21 @@ onMounted(() => {
     border-radius: 1vw;
     animation: highlight-animation 2s ease-in-out;
 }
+
 .scroll-button {
     z-index: 10;
     position: absolute;
     right: 0;
     background-color: #7caef8;
     color: white;
-    border-radius: 6vh 0px 0 0 ;
+    border-radius: 6vh 0px 0 0;
     padding-left: 1.5vw;
     padding-right: 0.5vw;
     cursor: pointer;
     font-size: 15px;
     font-style: italic;
 }
+
 .chat-window-container {
     height: 100%;
     width: 100%;

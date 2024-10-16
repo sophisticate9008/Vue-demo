@@ -33,7 +33,7 @@ const totalUnreadInfo = computed(() => {
     let totalCount = 0;
     if (messages) {
         for (const theMessages of Object.values(messages)) {
-            const { count } = computeUnreadInfo(theMessages as MessageBody[], userState.userInfo.account);
+            const { count } = computeUnreadInfo(theMessages as MessageBody[], userState.userInfo.id);
             if (count) {
                 totalCount += count;
             }
@@ -43,6 +43,9 @@ const totalUnreadInfo = computed(() => {
 
     return totalCount > 0 ? totalCount : undefined;
 });
+const jumpPages = (url: string) => {
+    router.push(url);
+};
 
 </script>
 
@@ -70,7 +73,7 @@ const totalUnreadInfo = computed(() => {
                 </div>
                 <div class="headBar-item">
                     <el-badge v-if="!isEqual(userState.userInfo, {})" :value="totalUnreadInfo" class="app-badge-item" :offset="[-5, 20]">
-                        <el-icon size="25">
+                        <el-icon size="25" @click="jumpPages('/chat')">
                             <ChatDotRound />
                         </el-icon>
                     </el-badge>

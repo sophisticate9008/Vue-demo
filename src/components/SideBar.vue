@@ -111,7 +111,10 @@ watch(route, () => { rootPath.value = route.path;});
     }
 
     /* 定义动画的初始状态 */
-    99% {
+    50% {
+        width: 3vw;
+    }
+    100% {
         width: 35px;
     }
 

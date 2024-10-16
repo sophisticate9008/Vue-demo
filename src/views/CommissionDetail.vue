@@ -129,15 +129,15 @@ const jumpToChangePage = () => {
 const getById = async () => {
     var res = await axios.get('/api/commission/getById?id=' + commissionId);
     data.value = res.data.data
-    isOwner.value = userState.userInfo.account == data.value?.account
-    ownerInfo.value = await getUserBasicInfo(data.value?.account as string)
+    isOwner.value = userState.userInfo.id == data.value?.userId
+    ownerInfo.value = await getUserBasicInfo(data.value?.userId as number)
     console.log(ownerInfo.value);
     getItemsByCommissionId()
 }
 const getItemsByCommissionId = async () => {
     const res1 = await axios.get(`/api/reply/getListByCommissionId?commissionId=${commissionId}&isOwner=${isOwner.value}`);
     const res2 = await axios.post("/api/user/basicInfos", {
-        accounts: res1.data.data.map((item: ReplyBody) => item.account)
+        ids: res1.data.data.map((item: ReplyBody) => item.userId)
     })
     items.value = res1.data.data.map((item: ReplyBody, index: number) => {
         return {

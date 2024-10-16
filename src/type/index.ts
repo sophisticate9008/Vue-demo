@@ -8,13 +8,13 @@ export interface CommissionBody {
     num: number;
     state: number;
     currentNum: number;
-    account: string;
+    userId: number;
 }
 
 export interface ReplyBody {
     id: number;
     content: string;
-    account: string;
+    userId: number;
     commissionId: number;
     replyTime: string;
     state: number;
@@ -41,8 +41,8 @@ export interface SideBarItemBody {
 export interface MessageBody {
     id: number;
     content: string;
-    sender: string;
-    receiver: string;
+    senderId: number;
+    receiverId: number;
     sendTime: string;
     haveRead: boolean;
 }
