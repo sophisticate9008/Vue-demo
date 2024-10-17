@@ -29,7 +29,7 @@ const loadCount = 10;
 const scrollerRef = ref<InstanceType<typeof ElScrollbar>>();
 const innerRef = ref<HTMLDivElement>();
 var messages = reactive([] as MessageBody[]);
-messages = userState.webSocketInstance.messageLoaded[props.user.id];
+messages = userState.messageWebSocketInstance.messageLoaded[props.user.id];
 const scrollerValue = ref<{
     scrollTop: number;
     scrollLeft: number;
@@ -78,7 +78,7 @@ const sendMessage = () => {
     if (form.value.content == '' || form.value.content == '<p><br></p>') {
         ElMessage.warning('不能发送空消息');
     } else {
-        userState.webSocketInstance.sendMessage(form.value);
+        userState.messageWebSocketInstance.sendMessage(form.value);
         form.value.content = '';
         editor.value.clearContent();
     }

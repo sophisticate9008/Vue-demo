@@ -9,7 +9,9 @@ const routes: Array<RouteRecordRaw> = [
     { path: "/addOrUpdateCommission/:id", name: "setting", component: () => import('../views/AddOrUpdateCommission.vue'), meta: { requiresAuth: true , title: "添加/更新委托" } },
     { path: "/", name: "home", component: () => import('../views/Home.vue'), meta: { title: "首页" }} ,
     { path: "/commissionDetail/:id", name: "commissionDetail", component: () => import('../views/CommissionDetail.vue'),meta: { requiresAuth: true , title: "委托详情" } },
-    {path: "/chat", name: "chat", component: () => import('../views/Chat.vue'),meta: { requiresAuth: true , title: "聊天" } }
+    {path: "/chat", name: "chat", component: () => import('../views/Chat.vue'),meta: { requiresAuth: true , title: "聊天" } },
+    {path: "/bill", name: "bill", component: () => import('../views/Bill.vue'), meta: { requiresAuth: true , title: "账单" } },
+    {path: "/bell", name: "bell", component: () => import('../views/Bell.vue'), meta: { requiresAuth: true , title: "通知" } }
 ];
 
 // 创建路由实例

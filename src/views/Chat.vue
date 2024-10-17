@@ -8,8 +8,8 @@ import ChatWindow from '../components/ChatWindow.vue';
 import { computeUnreadInfo } from '../tool';
 const userState = useUserState();
 
-var message = userState.webSocketInstance.messageLoaded;
-var messageKeys = userState.webSocketInstance.keys;
+var message = userState.messageWebSocketInstance.messageLoaded;
+var messageKeys = userState.messageWebSocketInstance.keys;
 const requestedKeys = new Set<number>();
 const userBasicInfo = ref<UserBody[]>([]);
 const userSel = ref<UserBody>();
@@ -44,10 +44,10 @@ const getLastestTime = (key: number) => {
 
 }
 setTimeout(() => {
-    message = userState.webSocketInstance.messageLoaded;
-    messageKeys = userState.webSocketInstance.keys;
+    message = userState.messageWebSocketInstance.messageLoaded;
+    messageKeys = userState.messageWebSocketInstance.keys;
     updateAccountsAndFetch()
-}, 200);
+}, 1000);
 
 watch(messageKeys, () => {
     updateAccountsAndFetch();

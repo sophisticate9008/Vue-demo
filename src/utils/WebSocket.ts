@@ -1,13 +1,14 @@
 import { Client, IMessage } from '@stomp/stompjs';
 import { Observable, Subject } from 'rxjs';
-import { MessageBody, UserBody } from '../type';
+import { BellBody, MessageBody, UserBody } from '../type';
 import { reactive, ref, toRef } from 'vue';
 
-export class WebSocketService {
+export class MessageWebSocketService {
     private _user: UserBody = null as unknown as UserBody;
     private client: Client;
     private messagesSubject$ = new Subject<any>();
     private _messageLoaded = reactive<Record<number, MessageBody[]>>({});
+    private _bellLoaded = ref<BellBody[]>([]);
     private _keys = ref<Set<number>>(new Set<number>());
     constructor(private url: string, private uuid: string) {
         this.client = new Client({

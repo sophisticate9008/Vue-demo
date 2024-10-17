@@ -5,25 +5,31 @@
         <div class="headbar">
             <div class="buttons">
                 <el-button type="primary" circle v-if="isOwner && activePanel == 'problem'" icon="Edit"
-                 @click="jumpToChangePage" style="height: 4vh; width: 4vh;"></el-button>
+                 @click="jumpToChangePage" class="commission-button"></el-button>
 
                 <el-button type="danger" circle v-if="isOwner && activePanel == 'problem'" icon="Delete"
-                 @click="deleteCommission" style="height: 4vh; width: 4vh;"></el-button>
+                 @click="deleteCommission" class="commission-button"></el-button>
 
                 <el-button type="success" circle v-if="isOwner && activePanel == 'solution'" icon="Check"
-                 @click="confirmDialog('apply', replySel?.id as number)" style="height: 4vh; width: 4vh;"></el-button>
+                 @click="confirmDialog('apply', replySel?.id as number)" class="commission-button"></el-button>
 
                 <el-button type="danger" circle v-if="isOwner && activePanel == 'solution'" icon="close"
-                 @click="confirmDialog('reject', replySel?.id as number)" style="height: 4vh; width: 4vh;"></el-button>
+                 @click="confirmDialog('reject', replySel?.id as number)" class="commission-button"></el-button>
 
                 <el-button type="primary" circle v-if="!isOwner && activePanel == 'problem'" icon="Lock"
-                 @click="changeLockConfirm('lock')" style="height: 4vh; width: 4vh;"></el-button>
+                 @click="changeLockConfirm('lock')" class="commission-button"></el-button>
+
+                <el-button type="primary" circle v-if="!isOwner && activePanel == 'problem'"
+                 :icon='subscribed ? "StarFilled" : "Star"' @click="subscribed ? unsubscribe() : subscribe()"
+                 class="commission-button"></el-button>
 
                 <el-button type="primary" circle v-if="!isOwner && activePanel == 'solution'" icon="Checked"
-                 @click="submitReplyForm(replySel as ReplyBody)" style="height: 4vh; width: 4vh;"></el-button>
+                 @click="submitReplyForm(replySel as ReplyBody)" class="commission-button"></el-button>
 
                 <el-button type="danger" circle v-if="!isOwner && activePanel == 'solution'" icon="Unlock"
-                 @click="changeLockConfirm('unlock', replySel?.id)" style="height: 4vh; width: 4vh;"></el-button>
+                 @click="changeLockConfirm('unlock', replySel?.id)" class="commission-button"></el-button>
+
+
             </div>
 
             <SwitchHeadBar :menuItems="menuItems"
@@ -34,7 +40,7 @@
             <div class="problem-main problem-item">
 
                 <el-scrollbar height="80vh">
-                    <MyQuillEditor v-if="data" class="description" :content="data.description" read-only/>
+                    <MyQuillEditor v-if="data" class="description" :content="data.description" read-only />
                 </el-scrollbar>
             </div>
 
@@ -55,7 +61,7 @@
                 </div>
                 <div class="problem-item" style="display: inline-flex; align-items: center;  ">
                     <AvatarWithInfo v-if="ownerInfo" :item="ownerInfo"></AvatarWithInfo>
-                    <span >
+                    <span>
                         &nbsp;&nbsp;({{ data?.currentNum }} / {{ data?.num }})
                     </span>
 
@@ -67,8 +73,9 @@
             <div style="border:2px solid #ededed;">
                 <el-scrollbar height="80vh" style="background-color: white; width: 15vw;">
                     <div class="replys">
-                        <ItemSel type="reply" v-for="item in items" :key="item.reply.id" :reply="item.reply" :user=item.user
-                        @sel="selItem($event)" :isSel="replySel?.id == item.reply.id" :update-time="item.reply.replyTime" />
+                        <ItemSel type="reply" v-for="item in items" :key="item.reply.id" :reply="item.reply"
+                         :user=item.user @sel="selItem($event)" :isSel="replySel?.id == item.reply.id"
+                         :update-time="item.reply.replyTime" />
                     </div>
                 </el-scrollbar>
             </div>
@@ -101,7 +108,7 @@ import MyQuillEditor from '../components/MyQuillEditor.vue';
 const userState = useUserState();
 const route = useRoute();
 const router = useRouter();
-const commissionId = route.params.id;
+const commissionId = Number.parseInt(route.params.id as string);
 const data = ref<CommissionBody>();
 const isOwner = ref(false);
 const formDialogVisible = ref(false);
@@ -120,6 +127,36 @@ const menuItems = ref([
     { name: '委托详情', panel: 'problem' },
     { name: '回答详情', panel: 'solution' },
 ]);
+const subscribed = ref(false);
+
+const isSubscribed = async () => {
+    const res = await axios.get('/api/subscribe/isSubscribe?commissionId=' + commissionId);
+    if (res.data.code == 200) {
+        subscribed.value = true;
+    } else {
+        subscribed.value = false;
+    }
+}
+const unsubscribe = async () => {
+    var res = await axios.post('/api/subscribe/removeByCommissionId', {
+        ids: [commissionId]
+    });
+    myElMessage(res);
+    if(res.data.code == 200) {
+        subscribed.value = false;
+    }
+}
+const subscribe = async () => {
+    const formData = new URLSearchParams();
+    formData.append('commissionId', commissionId.toString());
+    
+    var res = await axios.post('/api/subscribe/add', formData,
+    );
+    myElMessage(res);
+    if(res.data.code == 200) {
+        subscribed.value = true;
+    }
+}
 const selHeadMenu = (panel: string) => {
     activePanel.value = panel;
 }
@@ -218,10 +255,16 @@ const submitReplyForm = async (item: ReplyBody) => {
     myElMessage(res)
 }
 getById();
+isSubscribed();
 
 </script>
 
 <style scoped>
+.commission-button {
+    height: 4vh;
+    width: 4vh;
+}
+
 .countdown-footer {
     font-size: 1.6vh;
     color: gary;

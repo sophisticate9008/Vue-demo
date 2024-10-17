@@ -9,7 +9,7 @@
             </div>
         </template>
         <div class="card-body">
-            <p>{{ item.description }}</p>
+            <MyQuillEditor v-if="item" class="description" :content="item.description" read-only/>
         </div>
 
         <template #footer>
@@ -23,6 +23,7 @@
 import { defineProps, PropType } from 'vue'
 import { convertBeijingTime } from "../tool"
 import { CommissionBody } from "../type"
+import MyQuillEditor from '../components/MyQuillEditor.vue';
 defineProps({
     item: {
         type: Object as PropType<CommissionBody>,

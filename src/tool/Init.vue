@@ -5,7 +5,7 @@ import { ref } from 'vue';
 import axiosClient from "../utils/AxiosClient";
 import axios from "axios";
 import { ElMessage } from "element-plus";
-import { WebSocketService } from "../utils/WebSocket";
+import { MessageWebSocketService } from "../utils/WebSocket";
 const isLogin = ref(false);
 const userState = useUserState();
 const fetchUserInfo = async () => {
@@ -31,15 +31,15 @@ await judgeLogin();
 
 
 
-var webSocketInstance: WebSocketService;
+var messageWebSocketInstance: MessageWebSocketService;
 const initWebsocket = async () => {
     const uuid = crypto.randomUUID();
     await axios.get("/api/message/initUuid?uuid=" + uuid);
-    webSocketInstance = new WebSocketService('/websocket', uuid)
-    userState.setWebsocketInstance(webSocketInstance);
+    messageWebSocketInstance = new MessageWebSocketService('/websocket', uuid)
+    userState.setWebsocketInstance(messageWebSocketInstance);
     const messages = await axios.get("/api/message/loadAll");
-    webSocketInstance.messageLoaded = messages.data.data;
-    webSocketInstance.user = userState.userInfo;
+    messageWebSocketInstance.messageLoaded = messages.data.data;
+    messageWebSocketInstance.user = userState.userInfo;
 }
 if (isLogin.value) {
     await fetchUserInfo();

@@ -20,6 +20,7 @@ const changeSel = (url: string) => {
 const sidebarItems = [
     { icon: 'HomeFilled', title: '主页', url: '/' },
     { icon: 'CirclePlus', title: '添加', url: '/addOrUpdateCommission/-1' },
+    { icon: 'List', title: '账单', url: '/bill' }
     // { icon: 'Setting', title: 'Settings', url: '/settings' }
 ]
 const logout = () => {
@@ -29,7 +30,7 @@ const logout = () => {
     router.push('/');
 };
 const totalUnreadInfo = computed(() => {
-    const messages = userState.webSocketInstance?.messageLoaded
+    const messages = userState.messageWebSocketInstance?.messageLoaded
     let totalCount = 0;
     if (messages) {
         for (const theMessages of Object.values(messages)) {
@@ -69,15 +70,22 @@ const jumpPages = (url: string) => {
                             </el-dropdown-menu>
                         </template>
                     </el-dropdown>
-
                 </div>
                 <div class="headBar-item">
-                    <el-badge v-if="!isEqual(userState.userInfo, {})" :value="totalUnreadInfo" class="app-badge-item" :offset="[-5, 20]">
+                    <el-badge v-if="!isEqual(userState.userInfo, {})" :value="totalUnreadInfo" class="app-badge-item"
+                     :offset="[-5, 20]">
                         <el-icon size="25" @click="jumpPages('/chat')">
                             <ChatDotRound />
                         </el-icon>
                     </el-badge>
-
+                </div>
+                <div class="headBar-item">
+                    <el-badge v-if="!isEqual(userState.userInfo, {})" :value="totalUnreadInfo" class="app-badge-item"
+                     :offset="[-5, 20]">
+                        <el-icon size="25" @click="jumpPages('/bell')">
+                            <Bell />
+                        </el-icon>
+                    </el-badge>
                 </div>
             </div>
             <div class="router-container">
@@ -110,6 +118,7 @@ const jumpPages = (url: string) => {
     cursor: pointer;
     width: 2vw;
     margin-right: 1vw;
+    flex-direction: row;
 }
 
 .router-container {

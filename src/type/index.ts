@@ -46,3 +46,18 @@ export interface MessageBody {
     sendTime: string;
     haveRead: boolean;
 }
+
+export interface BillBody {
+    id:number,
+    type: number,
+    userId: number,
+    gold: number,
+    createdAt: string,
+    content: string
+}
+export interface BellBody {
+    content: string,
+    createAt: string,
+    id: number,
+    userId: number
+}
